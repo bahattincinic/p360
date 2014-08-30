@@ -1,0 +1,115 @@
+<template name="chat">
+
+        <script type="text/javascript">
+            var saniye = 360;
+            $.sifirla = function(){
+                if (saniye > 1){
+                    saniye--;
+                    $(".second").text(saniye);
+                } else {
+                    $(".second").text("bye bye...");
+                    $( "#string_seconds" ).empty();
+                }
+            }
+            setInterval("$.sifirla()", 1000);
+        </script>
+        <header>
+        <div class="container">
+            <div class="row">
+                <div class="myProfile" >
+                    <div class="myProfilePic">
+                            <img class="picInner show_hide" id='show_hide' style="display:block" src="img/default_pic.png" alt="">
+                    </div>
+                    <div class="myProfileNick"><span>{{currentUser.username}}</span></div>
+                    <div class="settings" style="display:none">
+                        <form id='changeForm' method="POST">
+                            <h3>Update Information</h3>
+                            <hr>
+                            <h5>Photo</h5>
+                            <input type="file" class="select_pic">
+                            <h5>E-mail / Username</h5>
+                            <input class="set_form" id='update-email' value='{{#each currentUser.emails}}{{address}}{{/each}}' required type="email" placeHolder="E-mail">
+                            <input class="set_form" id='update-username' value='{{currentUser.username}}' required type="text" placeHolder="Username">
+
+                            <hr>
+                            <h5>Password (Optional)</h5>
+                            <input class="set_form" id='new-password' type="password" placeHolder="New password">
+
+                            <hr>
+                            <input required class="set_form" id='current-password' type="password" placeHolder="Current Password">
+
+                            <button type="submit">Save</button>
+                            <button id='logoutAction'>Logout</button>
+                        </form>
+                    </div>
+
+                </div>
+
+                <div class="logo  text-center">
+                        <img class="col-centered" src="img/360.png" alt="">
+                </div>
+            </div>
+        </div>
+    </header>
+    {{#if isTalking}}
+
+    <div class="container">
+        <div class="row ">
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 col-centered">
+                <div class="ratio img-responsive img-circle " id="img_profile" style="background-image: url(img/big_pic.jpg);"></div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-sm-3 col-xs-6 col-md-3 col-lg-2 col-centered text-center">
+                <div class="anonimName">anonim</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+            <div class="seconds pull-right"><span class="second">360</span> <strong id="string_seconds">seconds</strong></div>
+            <div class="chat_status">
+                <ul>
+                    <li class="online offline"><a href="#"   title="online"></a></li>
+                    <li class="hey"><a href="#"  title="Hey !"><b>3</b></a></li>
+                    <li class="block"><a href="#"  title="Block !"></a></li>
+                    <li class="sound_off sound_on"><a href="#"  title="Mute"></a></li>
+                    <li class="typing"><a href="#"  title="Typing..."></a></li>
+                </ul>
+            </div>
+                <form id='form360'>
+                    <input type="text" id="input360" placeHolder="Please...">
+                </form>
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-lg-12">
+                    <table id="messagemessage">
+                        <tbody>
+                            {{#each messages}}
+                                {{>message}}
+                            {{/each}}
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+    {{ else }}
+    <div class='container'>
+    <div class='row'>
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 col-centered">
+        {{>shuffle}}
+        </div>
+    </div>
+    </div>
+    {{/if}}
+</template>
+
+<template name="message">
+    <tr>
+        <td><b class="unick">{{name}}: </b>{{body}}</td>
+    </tr>
+</template>
+
+<template name="shuffle">
+    <button id='ping'>Shuffle</button>
+</template>

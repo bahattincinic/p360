@@ -1,0 +1,53 @@
+<template name="login">
+    <header>
+        <div class="container">
+            <div class="row">
+
+                <div class="logo  text-center">
+                        <img class="col-centered" src="img/360.png" alt="">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="page">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-centered ">
+                    <div class="col-md-6 pull-left">
+                          <h2>Hello !</h2>
+                          <p>360seconds'a Hoş Geldiniz, <br> Seni, tanımadığın biriyle 360 saniye boyunca konuşabileceğin bir ortama bağlıyoruz. <br> Umarım ilgini çeken insanlarla karşılaşabilirsin. <br> </p>
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-xs-12 pull-right">
+                          <div class="signup">
+                          <h3>Sign Up</h3>
+                            <form class="sign" id='register-form'>
+                                <input type="text" id='account-username' placeholder="username">
+                                <input type="email" id='account-email' placeholder="email (optional)">
+                                <input type="password" id='account-password' placeholder="password">
+                                <input class="submit" type="submit" value='Sign Up' />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-10 col-centered ">
+                        <div class="col-md-4 col-sm-12 col-xs-12 pull-right">
+                          <div class="signin">
+                          <h3>Sign In</h3>
+                            <form class="sign" id='login-form'>
+                                <input type="text" id='login-username' placeholder="username">
+                                <input type="password" id='login-password' placeholder="password">
+                                <input class="submit" type="submit" value='Sign In' />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</template>

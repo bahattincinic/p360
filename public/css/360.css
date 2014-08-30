@@ -1,0 +1,70 @@
+body{font-family: Arial,sans-serif; font-weight: bolder; background: #ECECEC;}
+
+*{ border: none; outline: none;}
+
+.show_hide {display:none;}
+.caption div { box-shadow: 0 0 5px #C8C8C8; transition: all 0.3s ease 0s;}
+.img-circle {border-radius: 50%;}
+.img-circle {border-radius: 0;}
+.ratio {background-position: center center; background-repeat: no-repeat; background-size: cover;  height: 0; padding-bottom: 100%; position: relative; width: 100%;}
+.img-circle {border-radius: 50%;}
+.img-responsive {display: block; height: auto; max-width: 100%;}
+#img_profile{position: relative;opacity: 0.9;-webkit-opacity: 0.9;-moz-opacity: 0.9;transition: 0.5s ease;-webkit-transition: 0.5s ease;-moz-transition: 0.5s ease;margin-top: 50px;border: px solid;}
+#img_profile:hover{-webkit-transform: scale(1.2);-moz-transform: scale(1.2);opacity: 1;-webkit-opacity: 1;-moz-opacity: 1;}
+.col-centered{float: none; margin: 0 auto!important;}
+
+header{height: 60px;width: 100%; position: relative; margin-bottom: 10px;  background: url(../img/black_denim.png) #292929; padding-top: 10px; box-shadow: 0px 0px 3px #000;}
+header .logo{display: block; }
+header .myProfile{display: block; position: absolute;}
+header .myProfilePic{border-radius: 45px;display: inline-block; }
+header .picInner {margin-top: 8px;border-radius: 45px; height: 75px; width: 75px; border: 2px solid #ECECEC; box-shadow: 0px 0px 3px #000;}
+header .myProfileNick{position: relative; display: inline-block; color: #fff; font-size: 18px;}
+header .settings { width: 300px; border: 1px solid rgba(0, 0, 0, 0.15); height:530px; border-radius:2px;   padding:20px;  margin-top:10px;  position: relative;  z-index: 9999; background: rgba(255,255,255,0.95);}
+header .settings button {display: block;font-size: 18px;font-weight: 100;position: relative;background: crimson;border: 1px solid crimson;color: #F2F1EF;border-radius: 1px;width: 100%;height: 35px;float: right;margin-top: 7px;}
+header .settings input.set_form{width: 100%;height: 30px;text-indent: 10px;margin: 5px 0;border-radius: 5px;border: 1px solid ;border-color: rgba(0,0,0,0.4);font-weight: lighter;color:#000;}
+header .settings h3{margin-top: 0;}
+header .select_pic::-webkit-file-upload-button { visibility: hidden;}
+header .select_pic {color: transparent; border: none!important;}
+header .select_pic::-webkit-file-upload-button { visibility: hidden;}
+header .select_pic::before {content: 'Select Photo'; color: black; display: inline-block;  background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);  border: 1px solid #999;  border-radius: 3px;  padding: 5px 8px;  outline: none;  white-space: nowrap;  -webkit-user-select: none;  cursor: pointer;  text-shadow: 1px 1px #fff;  font-weight: 700;  font-size: 10pt;}
+header .select_pic:hover::before {border-color: black;}
+header .select_pic:active { outline: 0;}
+header .select_pic:active::before {background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);}
+
+.anonimName{font-size: 28px;}
+.seconds{font-size:28px; color: crimson}
+.seconds > strong{font-size: 24px; color: black; }
+
+input#input360{width: 100%; border: 1px solid rgba(0, 0, 0, 0.15);outline: none; margin: 10px 0; font-weight: lighter; font-size: 16px; font-family: Arial,sans-serif; text-indent: 15px; height: 50px;}
+input#input360:focus{border: 1px solid rgba(0, 0, 0, 0.2);}
+
+#messagemessage{font-family: Arial,sans-serif; font-weight: lighter; background: rgba(255,255,255,0.4);  padding: 10px; position: relative;display: block;  border:1px solid rgba(0, 0, 0, 0.10); }
+#messagemessage tr{margin: 10px 0; }
+#messagemessage b.inick{font-size: 18px; color:#494B4D;}
+#messagemessage b.unick{font-size: 18px; color:#000;}
+
+#page{ width: 100%; display:block; position: relative; top: 75px;   }
+#page h2{color: #fff; font-size: 32px; line-height: 44px; margin-bottom: 30px; text-shadow:0px 0px 1px rgba(0,0,0,0.6); font-weight: lighter;}
+#page p{color: #fff; font-size: 20px; line-height: 34px; margin-bottom: 30px; text-shadow:0px 0px 1px rgba(0,0,0,0.6); font-weight: lighter;}
+
+.signup {margin-top: 20px;background: rgba(255,255,255,0.85);padding: 10px 20px;text-align: center;border: 1px solid rgba(255, 255, 255, 0.8);height: 265px;border-radius: 7px;background: url(../img/black_denim.png) rgba(97, 97, 97, 0.5);}
+.signup h3{margin: 8px 0 10px 0; color: #fff;}
+.signin {margin-top: 20px;background: rgba(255,255,255,0.85);padding: 10px 20px;text-align: center;border: 1px solid rgba(255, 255, 255, 0.8);height: 215px;border-radius: 7px;background: url(../img/black_denim.png) rgba(97, 97, 97, 0.5);}
+.signin h3{margin: 8px 0 10px 0; color: #fff;}
+.sign input{ width:100%; height: 40px; text-indent: 10px; margin: 5px 0; border: 1px solid; border-color: rgba(0,0,0,0.1); border-radius: 7px; font-weight: lighter;}
+.sign .submit{display: block; font-size: 18px; font-weight: 100; position: relative; background: crimson; border:1px solid crimson; color: #F2F1EF; border-radius: 1px;width: 100%;height: 35px; float: right; margin-top: 7px;}
+
+
+.chat_status{font-weight: 100; margin-top: 20px;  position: relative; display: block; font-size: 16px; float: left;}
+.chat_status ul{margin:0; padding:0; }
+.chat_status ul li{float: left; width: 40px; height: 40px; background: url(../img/icons/icons.png); background-repeat: no-repeat; list-style: none; margin-right:10px;}
+.chat_status ul li a{width: 40px; height: 40px; display: block; position: relative;}
+.chat_status ul li.online{background-position: 0px 0px;}
+.chat_status ul li.offline{background-position: -40px 0px;}
+.chat_status ul li.typing{background-position: -80px 0px;}
+.chat_status ul li.hey{background-position: -120px 0px;}
+.chat_status ul li.hey b{margin-left: 25px; background: crimson; color: #fff; border-radius: 10px; bottom: 0; position: absolute; font-weight: bold; padding: 2px 7px;font-size: 12px;}
+.chat_status ul li.block{background-position: -160px 0px;}
+.chat_status ul li.sound_on{background-position: -200px 0px;}
+.chat_status ul li.sound_off{background-position: -240px 0px;}
+
