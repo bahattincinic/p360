@@ -5,7 +5,11 @@ Template.chat.events({
         $(".settings").stop().slideToggle();
     },
     'click #logoutAction': function(e, t){
-        Meteor.logout(function(err){})
+        Meteor.logout(function(err){
+            if(!err && socket) {
+                socket.emit('loggedOut');
+            }
+        })
     },
     'submit #form360': function(e, form) {
         e.preventDefault();
@@ -68,9 +72,9 @@ Meteor.startup(function() {
     Session.set('talking', false);
     socket = io.connect('http://l:4000');
     window.socket = socket;
+
     socket.on('pulse', function() {
         console.log('pulse receivced');
-
     });
 
     Meteor.autorun(function() {
@@ -81,8 +85,6 @@ Meteor.startup(function() {
     Meteor.autorun(function() {
         if (Meteor.user()) {
             socket.emit('loggedIn', Meteor.user()._id);
-        } else {
-            socket.emit('loggedOut');
         }
     });
 });
