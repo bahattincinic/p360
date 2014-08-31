@@ -183,10 +183,13 @@ Shuffle.find().observe({
                 // TODO: create a room and add roomId here
             });
 
+            console.log('roomId: ' + roomId);
             // set all sessions as 'talking'
             _.each(ss, function(s) {
                 Sessions.update({'_id': s._id},
                     {$set: {'talking': true, 'room': roomId}});
+                _.each()
+
             });
 
             // after all ops
