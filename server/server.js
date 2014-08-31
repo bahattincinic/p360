@@ -17,15 +17,19 @@ var Fiber = Npm.require('fibers');
 
 app.listen(4000);
 var shuffleName = 'x00x';
+var pile = [];
 
 Meteor.startup(function() {
     Sessions.remove({});
     Meteor.users.remove({});
     Shuffle.remove({});
     Rooms.remove({});
+    pile.length = 0;
+
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
         console.log('connection socket with id: ' + socket.id);
+        pile.push({socket.id: socket});
 
         socket.on('disconnect', function() {
             // TODO: toolking == true Room icine stopWatch a user id sini koy
@@ -139,6 +143,12 @@ Meteor.startup(function() {
         },
         is: function() {
             console.log(Shuffle.find({}).count());
+        },
+        p: function() {
+            console.log(pile.length);
+            _.each(pile, function(a) {
+                console.log(a);
+            });
         }
     });
 });
