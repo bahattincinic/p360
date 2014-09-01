@@ -29,7 +29,7 @@ Meteor.startup(function() {
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
         console.log('connection socket with id: ' + socket.id);
-        pile.push({socket.id: socket});
+        pile.push({'socketid': socket.id, 'socket': socket});
 
         socket.on('disconnect', function() {
             // TODO: toolking == true Room icine stopWatch a user id sini koy
@@ -199,6 +199,7 @@ Shuffle.find().observe({
                 Sessions.update({'_id': s._id},
                     {$set: {'talking': true, 'room': roomId}});
                 _.each()
+
 
             });
 
