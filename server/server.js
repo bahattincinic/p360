@@ -86,8 +86,7 @@ Meteor.startup(function() {
 
                 Sessions.update(
                     {'_id': session._id},
-                    {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}},
-                    function(e){console.error(e)});
+                    {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}});
             }).run();
         });
 
