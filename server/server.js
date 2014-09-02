@@ -212,9 +212,17 @@ Shuffle.find().observe({
                         return item.socketid == socketId;
                     });
 
-                    console.log(needle);
+                    if (!needle) {
+                        console.error('needle not found!');
+                        throw Meteor.Error(404, 'Error 404: Not found', details);
+                    }
+
+                    needle.socket.join(roomId);
                 });
             });
+
+            // send notification to all of room
+            io.to(roomId).emit('talking', true);
 
             // after all ops
             Shuffle.update({'name': shuffleName}, {

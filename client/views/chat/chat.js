@@ -50,7 +50,6 @@ Template.shuffle.events({
         if (Session.get('talking')) return;
 
         var response = Meteor.call('v', Meteor.user()._id);
-        console.log(response);
     }
 });
 
@@ -75,6 +74,10 @@ Meteor.startup(function() {
 
     socket.on('pulse', function() {
         console.log('pulse receivced');
+    });
+
+    socket.on('talking', function(value) {
+        Session.set('talking', value);
     });
 
     Meteor.autorun(function() {
