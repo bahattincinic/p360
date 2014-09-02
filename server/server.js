@@ -1,4 +1,3 @@
-
 /*
  TODO: Odanin dusmesi icin iki kisinin de next butonuna basmasi lazim yada
  sure bitmesi lazim. 1 adam odadan cikarsa cikan adamin yerine next butonuna
@@ -32,7 +31,17 @@ Meteor.startup(function() {
         pile.push({'socketid': socket.id, 'socket': socket});
 
         socket.on('disconnect', function() {
-            // TODO: toolking == true Room icine stopWatch a user id sini koy
+            // TODO: toolking == true ise Room icine stopWatch a user id sini koy
+
+            // remove socket from pile
+            var retract = _.find(pile, function(item) {
+                return item.socketid == socket.id;
+            });
+
+            if (!retract) console.error('no socket to retract from pile!');
+            var index = pile.indexOf(retract);
+            pile.splice(index, 1);
+
             Fiber(function() {
                 console.warn('disconnected: ' + socket.id);
 
@@ -100,7 +109,7 @@ Meteor.startup(function() {
 
         socket.on('enable', function() {
             socket.join('aaa');
-        })
+        });
     });
 
     // TODO: for debugging only, must be removed at production
@@ -146,7 +155,7 @@ Meteor.startup(function() {
         p: function() {
             console.log(pile.length);
             _.each(pile, function(a) {
-                console.log(a);
+                console.log(a.socketid);
             });
         }
     });
@@ -197,9 +206,14 @@ Shuffle.find().observe({
             _.each(ss, function(s) {
                 Sessions.update({'_id': s._id},
                     {$set: {'talking': true, 'room': roomId}});
-                _.each()
 
+                _.each(s.sessions, function(socketId) {
+                    var needle  = _.find(pile, function(item) {
+                        return item.socketid == socketId;
+                    });
 
+                    console.log(needle);
+                });
             });
 
             // after all ops
