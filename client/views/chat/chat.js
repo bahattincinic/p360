@@ -1,4 +1,5 @@
 var socket;
+var messageSubs;
 
 Template.chat.events({
     'click #show_hide': function(e, t){
@@ -14,9 +15,13 @@ Template.chat.events({
     'submit #form360': function(e, form) {
         e.preventDefault();
         var body = form.find('input[id=input360]').value;
+
+        // socket.emit('message', body);
+
         return Messages.insert({
                 body: body,
                 createdAt: Date.now(),
+                roomId: Session.get('roomId'),
                 username: Meteor.user().username
         });
     },
@@ -59,7 +64,8 @@ Template.chat.rendered = function(){
 };
 
 Template.chat.messages = function() {
-    return Messages.find({}, { sort: {createdAt: -1}});
+    return Messages.find({"roomId": Session.get('roomId')},
+        { sort: {createdAt: -1}});
 };
 
 Template.chat.isTalking = function() {
@@ -72,18 +78,24 @@ Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     window.socket = socket;
 
-    socket.on('pulse', function() {
-        console.log('pulse receivced');
-    });
 
-    socket.on('talking', function(value) {
+    socket.on('talking', function(value, roomId) {
         Session.set('talking', value);
+        if (!value && messageSubs) {
+            console.warn('unsub');
+            messageSubs.stop();
+        } else if (value && roomId){
+            console.warn('sub to ' + roomId);
+            Session.set('roomId', roomId);
+            messageSubs = Meteor.subscribe('messages', roomId);
+        }
     });
 
-    Meteor.autorun(function() {
-        Meteor.subscribe('messages', Session.get('key'));
-        Meteor.subscribe('users');
+    socket.on('message', function(message) {
+        console.log(message);
     });
+
+    Meteor.subscribe('users');
 
     Meteor.autorun(function() {
         if (Meteor.user()) {

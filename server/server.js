@@ -99,16 +99,8 @@ Meteor.startup(function() {
             }).run();
         });
 
-        socket.on('trigger', function() {
-            io.to('aaa').emit('pulse');
-        });
-
-        socket.on('disable', function() {
-            socket.leave('aaa');
-        });
-
-        socket.on('enable', function() {
-            socket.join('aaa');
+        socket.on('message', function(message) {
+            //
         });
     });
 
@@ -161,9 +153,9 @@ Meteor.startup(function() {
     });
 });
 
-Meteor.publish('messages', function(session_key) {
+Meteor.publish('messages', function(roomId) {
     // by default open all messages
-    return Messages.find({});
+    return Messages.find({'roomId': roomId});
 });
 
 Meteor.publish('users', function(){
@@ -201,6 +193,16 @@ Shuffle.find().observe({
                 // TODO: create a room and add roomId here
             });
 
+            Room.find({'_id': roomId}).observe({
+                changed: function (newDocument, oldDocument) {
+                    var room = Room.findOne({'_id': roomId});
+                    if (room.stopWatch.length > 1) {
+                        // TODO: delete room
+                        // io.to(room._id).emit('talking', )
+                    }
+                }
+            });
+
             console.log('roomId: ' + roomId);
             // set all sessions as 'talking'
             _.each(ss, function(s) {
@@ -222,7 +224,7 @@ Shuffle.find().observe({
             });
 
             // send notification to all of room
-            io.to(roomId).emit('talking', true);
+            io.to(roomId).emit('talking', true, roomId);
 
             // after all ops
             Shuffle.update({'name': shuffleName}, {
