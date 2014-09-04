@@ -1,6 +1,6 @@
 /*
  TODO: Odanin dusmesi icin iki kisinin de next butonuna basmasi lazim yada
- sure bitmesi lazim. 1 adam odadan cikarsa cikan adamin yerine next butonuna
+ sure bitmesi lazim. 1 adam odadan cikarsa (disconnect/logout) cikan adamin yerine next butonuna
  basilmis sayilicak.
 
  TODO: Kimler konusmus kimler konusmamis olayi icin Redis de
@@ -14,12 +14,13 @@ var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
 
-app.listen(4000);
-var shuffleName = 'x00x';
-var pile = [];
+app.listen(4000); // socketio listens on 4000
+var shuffleName = 'x00x'; // our one and only  shuffle object name
+var pile = []; // out pile of sockets
 
 Meteor.startup(function() {
     Sessions.remove({});
+    Messages.remove({});
     Meteor.users.remove({});
     Shuffle.remove({});
     Rooms.remove({});
@@ -31,7 +32,7 @@ Meteor.startup(function() {
         pile.push({'socketid': socket.id, 'socket': socket});
 
         socket.on('disconnect', function() {
-            // TODO: toolking == true ise Room icine stopWatch a user id sini koy
+            // TODO: talking == true ise Room icine stopWatch a user id sini koy
 
             // remove socket from pile
             var retract = _.find(pile, function(item) {
@@ -50,10 +51,18 @@ Meteor.startup(function() {
                     console.error('no session!');
                     return;
                 }
-
+                // reflect socket disconnection to its session
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}});
+                // if this session is exhausted of sockets
+                // and was in use (i.e. talking) then
+                // reflect that event to room as well.
+                session = Sessions.findOne({'_id': session._id});
+                if (session.talking && session.room && session.sessions.length == 0) {
+                    console.log('this socket was in use in a session and room, cleanup');
+                    Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
+                }
             }).run();
         });
 
@@ -99,8 +108,23 @@ Meteor.startup(function() {
             }).run();
         });
 
-        socket.on('message', function(message) {
-            //
+        socket.on('leave', function() {
+            Fiber(function() {
+                var session = Sessions.findOne({'sessions': {$in: [socket.id]}});
+                if (!session) {
+                    throw Meteor.Meteor.Error(500,
+                        'Error 404: Not found',
+                        'session not found when leaving');
+                }
+
+                console.log('session: ' + session._id);
+
+                var room = Rooms.findOne({'sessions': {$in: [session._id]}});
+                console.log('room: ' + room);
+                Rooms.update(
+                    {'_id': room._id},
+                    {$addToSet: {'stopWatch': session._id}});
+            }).run();
         });
     });
 
@@ -168,9 +192,6 @@ Meteor.publish('sessions', function(){
 
 
 Shuffle.find().observe({
-    added: function (document) {
-        console.log('shuffle enabled!');
-    },
     changed: function (newDocument, oldDocument) {
         console.log('shuffle changed!');
         var shuffle = Shuffle.findOne({'name': shuffleName});
@@ -189,16 +210,23 @@ Shuffle.find().observe({
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
                 'stopWatch': [],
-                'roomId': null
-                // TODO: create a room and add roomId here
+                'isActive': true
             });
 
-            Room.find({'_id': roomId}).observe({
+            Rooms.find({'_id': roomId}).observe({
                 changed: function (newDocument, oldDocument) {
-                    var room = Room.findOne({'_id': roomId});
-                    if (room.stopWatch.length > 1) {
-                        // TODO: delete room
-                        // io.to(room._id).emit('talking', )
+                    var room = Rooms.findOne({'_id': roomId});
+
+                    if (room.stopWatch.length == 2) {
+                        // both of the clients wants to leave the room
+                        // then destroy it
+                        io.to(room._id).emit('talking', false, null);
+                        Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
+                    } else if (room.stopWatch.length == 1) {
+                        // TODO: create a time here
+                        // so that when timer expires
+                        // it destroys the room
+                        console.log('will create timer here');
                     }
                 }
             });

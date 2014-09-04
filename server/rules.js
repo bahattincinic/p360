@@ -1,7 +1,6 @@
 
 Messages.allow({
     insert: function (userId, doc) {
-        console.log('inserting' + userId + ' and doc: ' + doc);
         return true;
     },
     update: function (userId, doc, fields, modifier) {
@@ -18,7 +17,6 @@ Messages.allow({
 
 Sessions.allow({
     insert: function (userId, doc) {
-        console.log('inserting' + userId + ' and doc: ' + doc);
         return true;
     },
     update: function (userId, doc, fields, modifier) {
@@ -34,7 +32,6 @@ Sessions.allow({
 
 Shuffle.allow({
     insert: function (userId, doc) {
-        console.log('inserting' + userId + ' and doc: ' + doc);
         return true;
     },
     update: function (userId, doc, fields, modifier) {

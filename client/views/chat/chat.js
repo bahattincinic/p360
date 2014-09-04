@@ -15,9 +15,7 @@ Template.chat.events({
     'submit #form360': function(e, form) {
         e.preventDefault();
         var body = form.find('input[id=input360]').value;
-
-        // socket.emit('message', body);
-
+        // TODO: maybe move message insert to socketio
         return Messages.insert({
                 body: body,
                 createdAt: Date.now(),
@@ -47,6 +45,15 @@ Template.chat.events({
                 }
             }
         });
+    },
+    'click #next': function(e, t) {
+        console.log('clicked next');
+        // can leave only when talking
+        if (Session.get('talking')) {
+            socket.emit('leave');
+        } else {
+            console.warn('leave has no effect');
+        }
     }
 });
 
@@ -57,7 +64,6 @@ Template.shuffle.events({
         var response = Meteor.call('v', Meteor.user()._id);
     }
 });
-
 
 Template.chat.rendered = function(){
     $.backstretch("destroy");
@@ -78,21 +84,21 @@ Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     window.socket = socket;
 
-
     socket.on('talking', function(value, roomId) {
+        console.log('change talking stat to ' + value);
         Session.set('talking', value);
         if (!value && messageSubs) {
+            // unsubscribe from messages
+            // and clear roomId
             console.warn('unsub');
             messageSubs.stop();
+            Session.set('roomId', null);
         } else if (value && roomId){
+            // set roomId and subscrive to room messages
             console.warn('sub to ' + roomId);
             Session.set('roomId', roomId);
             messageSubs = Meteor.subscribe('messages', roomId);
         }
-    });
-
-    socket.on('message', function(message) {
-        console.log(message);
     });
 
     Meteor.subscribe('users');
