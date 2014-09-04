@@ -14,9 +14,9 @@ var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
 
-app.listen(4000); // socketio listens on 4000
-var shuffleName = 'x00x'; // our one and only  shuffle object name
-var pile = []; // out pile of sockets
+app.listen(4000);               // socketio listens on 4000
+var shuffleName = 'x00x';       // our one and only  shuffle object name
+var pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -95,6 +95,7 @@ Meteor.startup(function() {
         });
 
         socket.on('loggedOut', function() {
+            // TODO: loggedOut and disconnect needs to be merged/refactored
             Fiber(function() {
                 var session = Sessions.findOne({'sessions': {$in: [socket.id]}});
                 if (!session) {
@@ -105,6 +106,12 @@ Meteor.startup(function() {
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}});
+
+                session = Sessions.findOne({'_id': session._id});
+                if (session.talking && session.room && session.sessions.length == 0) {
+                    console.log('this socket was in use in a session and room, cleanup');
+                    Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
+                }
             }).run();
         });
 
