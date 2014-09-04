@@ -4,7 +4,7 @@
  basilmis sayilicak.
 
  TODO: Kimler konusmus kimler konusmamis olayi icin Redis de
- 'sortedset' kullanilicak.
+ 'sortedset' kullanilicak. ???
 
  TODO: Firefox, Safari, Chrome ve Opera da test edilicek (Firefox da en son
  sikinti vardi.)
@@ -17,6 +17,8 @@ var Fiber = Npm.require('fibers');
 app.listen(4000);               // socketio listens on 4000
 var shuffleName = 'x00x';       // our one and only  shuffle object name
 var pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
+var roomWatch = [];             // currently in use rooms designed as
+                                // {'roomid': room.id, 'roomHandle': roomHandle}
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -32,8 +34,6 @@ Meteor.startup(function() {
         pile.push({'socketid': socket.id, 'socket': socket});
 
         socket.on('disconnect', function() {
-            // TODO: talking == true ise Room icine stopWatch a user id sini koy
-
             // remove socket from pile
             var retract = _.find(pile, function(item) {
                 return item.socketid == socket.id;
@@ -198,7 +198,7 @@ Meteor.publish('sessions', function(){
 });
 
 
-Shuffle.find().observe({
+Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
         console.log('shuffle changed!');
         var shuffle = Shuffle.findOne({'name': shuffleName});
@@ -213,22 +213,34 @@ Shuffle.find().observe({
             var ss = [Sessions.findOne({'userId': bob._id}),
                       Sessions.findOne({'userId': judy._id})];
 
-            // TODO: create room and enable socketio hooks here
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
                 'stopWatch': [],
                 'isActive': true
             });
 
-            Rooms.find({'_id': roomId}).observe({
+            // TODO: get a handle from  observe
+            // and stop it once room is not active anymore
+            var roomHandle = Rooms.find({'_id': roomId}).observe({
                 changed: function (newDocument, oldDocument) {
                     var room = Rooms.findOne({'_id': roomId});
 
                     if (room.stopWatch.length == 2) {
                         // both of the clients wants to leave the room
-                        // then destroy it
                         io.to(room._id).emit('talking', false, null);
                         Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
+                        // drop handle, we no more require observe to run
+                        var watchHandle = _.find(roomWatch, function(item) {
+                            return item.roomid == room._id;
+                        });
+
+                        if (!watchHandle) {
+                            console.error('cannot find room handle');
+                            throw new Meteor.Meteor.Error(500, 'cannot find room hande');
+                        }
+                        // stop observing for this room
+                        watchHandle.roomHandle.stop();
+                        // remote this room from the watch
                     } else if (room.stopWatch.length == 1) {
                         // TODO: create a time here
                         // so that when timer expires
@@ -236,6 +248,12 @@ Shuffle.find().observe({
                         console.log('will create timer here');
                     }
                 }
+            });
+
+            // watch this room for changes
+            roomWatch.push({
+                'roomid': roomId,
+                'roomHandle': roomHandle
             });
 
             console.log('roomId: ' + roomId);
@@ -265,8 +283,6 @@ Shuffle.find().observe({
             Shuffle.update({'name': shuffleName}, {
                 $pullAll: {'shuffle': [bob._id, judy._id]}
             });
-        } else {
-            console.log('no action');
-        }
+        } // shuffle.length > 1
     }
 });
