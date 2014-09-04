@@ -149,6 +149,11 @@ Meteor.startup(function() {
                 console.log(a);
             });
         },
+        lw: function() {
+            _.each(roomWatch, function(w) {
+                console.log(w);
+            });
+        },
         lm: function() {
             var aa = Messages.find().fetch();
             _.each(aa, function(a) {
@@ -236,11 +241,13 @@ Shuffle.find({'name': shuffleName}).observe({
 
                         if (!watchHandle) {
                             console.error('cannot find room handle');
-                            throw new Meteor.Meteor.Error(500, 'cannot find room hande');
+                            throw new Meteor.Meteor.Error(500, 'cannot find room handle');
                         }
                         // stop observing for this room
                         watchHandle.roomHandle.stop();
-                        // remote this room from the watch
+                        // remove this room from the watch
+                        var index = roomWatch.indexOf(watchHandle);
+                        roomWatch.splice(index, 1);
                     } else if (room.stopWatch.length == 1) {
                         // TODO: create a time here
                         // so that when timer expires
