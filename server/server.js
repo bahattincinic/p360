@@ -46,7 +46,7 @@ Meteor.startup(function() {
             Fiber(function() {
                 console.warn('disconnected: ' + socket.id);
 
-                var session = Sessions.findOne({'sessions': {$in: [socket.id]}});
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
                     console.error('no session!');
                     return;
@@ -54,12 +54,12 @@ Meteor.startup(function() {
                 // reflect socket disconnection to its session
                 Sessions.update(
                     {'_id': session._id},
-                    {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}});
+                    {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
                 // if this session is exhausted of sockets
                 // and was in use (i.e. talking) then
                 // reflect that event to room as well.
                 session = Sessions.findOne({'_id': session._id});
-                if (session.talking && session.room && session.sessions.length == 0) {
+                if (session.talking && session.room && session.sockets.length == 0) {
                     console.log('this socket was in use in a session and room, cleanup');
                     Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
                 }
@@ -77,19 +77,19 @@ Meteor.startup(function() {
                     // create session from scratch
                     Sessions.insert({
                         'userId': user._id,
-                        'sessions': [socket.id],
+                        'sockets': [socket.id],
                         'room': null,
                         'talking': false,
-                        'sessionCount': 1
+                        'socketCount': 1
                     });
                 } else {
                     Sessions.update({'_id': session._id},{
-                        $addToSet: {'sessions': socket.id},
+                        $addToSet: {'sockets': socket.id},
                     });
                     var one = Sessions.findOne({'_id': session._id});
                     Sessions.update(
                         {'_id': session._id},
-                        {$set: {'sessionCount': one.sessions.length}});
+                        {$set: {'socketCount': one.sockets.length}});
                 }
             }).run();
         });
@@ -97,7 +97,7 @@ Meteor.startup(function() {
         socket.on('loggedOut', function() {
             // TODO: loggedOut and disconnect needs to be merged/refactored
             Fiber(function() {
-                var session = Sessions.findOne({'sessions': {$in: [socket.id]}});
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
                     console.warn('no session on logout!');
                     return;
@@ -105,10 +105,10 @@ Meteor.startup(function() {
 
                 Sessions.update(
                     {'_id': session._id},
-                    {$pull: {'sessions': socket.id}, $inc: {'sessionCount': -1}});
+                    {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
 
                 session = Sessions.findOne({'_id': session._id});
-                if (session.talking && session.room && session.sessions.length == 0) {
+                if (session.talking && session.room && session.sockets.length == 0) {
                     console.log('this socket was in use in a session and room, cleanup');
                     Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
                 }
@@ -117,7 +117,7 @@ Meteor.startup(function() {
 
         socket.on('leave', function() {
             Fiber(function() {
-                var session = Sessions.findOne({'sessions': {$in: [socket.id]}});
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
                     throw Meteor.Meteor.Error(500,
                         'Error 404: Not found',
@@ -166,13 +166,14 @@ Meteor.startup(function() {
                 console.log(a);
             });
         },
-        ss: function() {
+        s: function() {
             var shuffle = Shuffle.find({}).fetch();
             _.each(shuffle, function(a) {
                 console.log(a);
             });
         },
         v: function(userId) {
+            // TODO: rename this func
             if (!userId) return;
 
             Shuffle.upsert({'name': shuffleName}, {$addToSet: {'shuffle': userId}});
@@ -198,7 +199,7 @@ Meteor.publish('users', function(){
     return Meteor.users.find({});
 });
 
-Meteor.publish('sessions', function(){
+Meteor.publish('sessions', function() {
     return Sessions.find({});
 });
 
@@ -246,8 +247,7 @@ Shuffle.find({'name': shuffleName}).observe({
                         // stop observing for this room
                         watchHandle.roomHandle.stop();
                         // remove this room from the watch
-                        var index = roomWatch.indexOf(watchHandle);
-                        roomWatch.splice(index, 1);
+                        roomWatch.splice(roomWatch.indexOf(watchHandle), 1);
                     } else if (room.stopWatch.length == 1) {
                         // TODO: create a time here
                         // so that when timer expires
@@ -269,7 +269,8 @@ Shuffle.find({'name': shuffleName}).observe({
                 Sessions.update({'_id': s._id},
                     {$set: {'talking': true, 'room': roomId}});
 
-                _.each(s.sessions, function(socketId) {
+                console.log(s.sockets);
+                _.each(s.sockets, function(socketId) {
                     var needle  = _.find(pile, function(item) {
                         return item.socketid == socketId;
                     });
