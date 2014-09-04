@@ -133,6 +133,44 @@ Meteor.startup(function() {
                     {$addToSet: {'stopWatch': session._id}});
             }).run();
         });
+
+        socket.on('message', function(body) {
+            // gather
+            Fiber(function() {
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
+                // make sure we have a takling active session
+                if (!session || !session.talking || !session.room) {
+                    throw Meteor.Error(500, 'unable to find session');
+                    return;
+                }
+
+                var room = Rooms.findOne({'_id': session.room});
+                if (!room || !room.isActive || room.sessions.length != 2) {
+                    throw Meteor.Error(500, 'unable to find room');
+                    return;
+                }
+
+                var remaining = _.without(room.sessions, session._id);
+                if (remaining.length != 1) {
+                    throw Meteor.Error(500, 'remaining');
+                    return;
+                }
+
+                var toSession = Sessions.findOne({'_id': remaining[0]});
+
+                var from = Meteor.users.findOne({'_id': session.userId}).username;
+                var to = Meteor.users.findOne({'_id': toSession.userId}).username;
+
+                // TODO: maybe do not block here
+                Messages.insert({
+                    'body': body,
+                    'createdAt': Date.now(),
+                    'from': from,
+                    'to': to,
+                    'roomId': room._id
+                });
+            }).run();
+        });
     });
 
     // TODO: for debugging only, must be removed at production
@@ -234,7 +272,8 @@ Shuffle.find({'name': shuffleName}).observe({
                     if (room.stopWatch.length == 2) {
                         // both of the clients wants to leave the room
                         io.to(room._id).emit('talking', false, null);
-                        Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
+                        Rooms.update({'_id': room._id},
+                            {$set: {'isActive': false}});
                         // drop handle, we no more require observe to run
                         var watchHandle = _.find(roomWatch, function(item) {
                             return item.roomid == room._id;
@@ -269,7 +308,6 @@ Shuffle.find({'name': shuffleName}).observe({
                 Sessions.update({'_id': s._id},
                     {$set: {'talking': true, 'room': roomId}});
 
-                console.log(s.sockets);
                 _.each(s.sockets, function(socketId) {
                     var needle  = _.find(pile, function(item) {
                         return item.socketid == socketId;
@@ -287,7 +325,7 @@ Shuffle.find({'name': shuffleName}).observe({
             // send notification to all of room
             io.to(roomId).emit('talking', true, roomId);
 
-            // after all ops
+            // after all ops remove these guys from shuffle
             Shuffle.update({'name': shuffleName}, {
                 $pullAll: {'shuffle': [bob._id, judy._id]}
             });

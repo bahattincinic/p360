@@ -15,13 +15,7 @@ Template.chat.events({
     'submit #form360': function(e, form) {
         e.preventDefault();
         var body = form.find('input[id=input360]').value;
-        // TODO: maybe move message insert to socketio
-        return Messages.insert({
-                body: body,
-                createdAt: Date.now(),
-                roomId: Session.get('roomId'),
-                username: Meteor.user().username
-        });
+        socket.emit('message', body);
     },
     'submit #changeForm': function(e, form){
         e.preventDefault();
