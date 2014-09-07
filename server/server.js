@@ -8,6 +8,9 @@
 
  TODO: Firefox, Safari, Chrome ve Opera da test edilicek (Firefox da en son
  sikinti vardi.)
+
+ TODO: karsidaki adam cikinca digeri isTalking=false, isSearching=true olucak
+       room kapanacak.
 */
 
 var app = Npm.require('http').createServer();
@@ -127,10 +130,11 @@ Meteor.startup(function() {
                 console.log('session: ' + session._id);
 
                 var room = Rooms.findOne({'sessions': {$in: [session._id]}});
-                console.log('room: ' + room);
+                console.log('room: ' + room._id);
                 Rooms.update(
                     {'_id': room._id},
                     {$addToSet: {'stopWatch': session._id}});
+                // TODO: add leaving user to shuffle after this
             }).run();
         });
 
