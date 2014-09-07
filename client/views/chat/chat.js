@@ -1,6 +1,7 @@
 var socket;
 var messageSubs;
 var sessionHandle;
+var observeHandle;
 
 Template.chat.events({
     'click #show_hide': function(e, t){
@@ -12,7 +13,6 @@ Template.chat.events({
                 socket.emit('loggedOut');
                 if (sessionHandle) {
                     sessionHandle.stop();
-                    Session.set('session', false);
                 }
             }
         })
@@ -75,29 +75,29 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
+// Template.chat.session = function() {
+//     console.log('running session');
+//     if (sessionHandle) {
+//         var _session =  Sessions.findOne({});
+//         return _session._id;
+//     } else {
+//         return "None";
+//     }
+// };
+
 Template.chat.isTalking = function() {
-    if (Session.get('session')) {
-        var ss = Sessions.findOne({'userId': Meteor.user()._id});
-        if (!ss) {
-            console.error('no session');
-            return;
-        }
-        return ss.talking;
-    } else {
-        return false;
-    }
-    // return Session.get('talking');
+    return Session.get('talking');
 };
 
 Template.chat.isSearching = function(){
     return Session.get('searching');
-}
+};
+
 
 
 Meteor.startup(function() {
     Session.set('talking', false);
     Session.set('searching', false);
-    Session.set('session', false);
     socket = io.connect('http://l:4000');
     window.socket = socket;
 
@@ -127,6 +127,18 @@ Meteor.startup(function() {
         if (Meteor.user()) {
             socket.emit('loggedIn', Meteor.user()._id);
             sessionHandle = Meteor.subscribe('sessions', Meteor.user()._id);
+            observeHandle = Sessions.find({'userId': Meteor.user()._id}).observe({
+                added: function (document) {
+                    console.log('added session');
+                },
+                changed: function (newDocument, oldDocument) {
+                    console.log('changed session');
+                    console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
+                },
+                removed: function (oldDocument) {
+                    console.log('session removed');
+                }
+            });
         } else {
             if (sessionHandle) {
                 sessionHandle.stop();
@@ -134,4 +146,3 @@ Meteor.startup(function() {
         }
     });
 });
-
