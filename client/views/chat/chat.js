@@ -16,6 +16,7 @@ Template.chat.events({
         e.preventDefault();
         var body = form.find('input[id=input360]').value;
         socket.emit('message', body);
+        $('input[id=input360]').val('');
     },
     'submit #changeForm': function(e, form){
         e.preventDefault();
@@ -45,17 +46,18 @@ Template.chat.events({
         // can leave only when talking
         if (Session.get('talking')) {
             socket.emit('leave');
+            $('#next').toggleClass( "yanyan" );
         } else {
             console.warn('leave has no effect');
         }
     }
 });
 
-Template.shuffle.events({
-    'click #ping': function() {
+Template.chat.events({
+    'click .ping': function() {
         if (Session.get('talking')) return;
-
         var response = Meteor.call('v', Meteor.user()._id);
+        Session.set('searching', true);
     }
 });
 
@@ -72,9 +74,14 @@ Template.chat.isTalking = function() {
     return Session.get('talking');
 };
 
+Template.chat.isSearching = function(){
+    return Session.get('searching');
+}
+
 
 Meteor.startup(function() {
     Session.set('talking', false);
+    Session.set('searching', false);
     socket = io.connect('http://l:4000');
     window.socket = socket;
 
@@ -87,11 +94,13 @@ Meteor.startup(function() {
             console.warn('unsub');
             messageSubs.stop();
             Session.set('roomId', null);
+            Session.set('searching', true);
         } else if (value && roomId){
             // set roomId and subscrive to room messages
             console.warn('sub to ' + roomId);
             Session.set('roomId', roomId);
             messageSubs = Meteor.subscribe('messages', roomId);
+            Session.set('searching', false);
         }
     });
 
