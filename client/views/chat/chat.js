@@ -1,5 +1,6 @@
 var socket;
 var messageSubs;
+var sessionHandle;
 
 Template.chat.events({
     'click #show_hide': function(e, t){
@@ -9,6 +10,10 @@ Template.chat.events({
         Meteor.logout(function(err){
             if(!err && socket) {
                 socket.emit('loggedOut');
+                if (sessionHandle) {
+                    sessionHandle.stop();
+                    Session.set('session', false);
+                }
             }
         })
     },
@@ -46,7 +51,7 @@ Template.chat.events({
         // can leave only when talking
         if (Session.get('talking')) {
             socket.emit('leave');
-            $('#next').toggleClass( "yanyan" );
+            $('#next').toggleClass("yanyan");
         } else {
             console.warn('leave has no effect');
         }
@@ -71,7 +76,17 @@ Template.chat.messages = function() {
 };
 
 Template.chat.isTalking = function() {
-    return Session.get('talking');
+    if (Session.get('session')) {
+        var ss = Sessions.findOne({'userId': Meteor.user()._id});
+        if (!ss) {
+            console.error('no session');
+            return;
+        }
+        return ss.talking;
+    } else {
+        return false;
+    }
+    // return Session.get('talking');
 };
 
 Template.chat.isSearching = function(){
@@ -82,9 +97,11 @@ Template.chat.isSearching = function(){
 Meteor.startup(function() {
     Session.set('talking', false);
     Session.set('searching', false);
+    Session.set('session', false);
     socket = io.connect('http://l:4000');
     window.socket = socket;
 
+    // TODO: replace this code here with ddp sessions
     socket.on('talking', function(value, roomId) {
         console.log('change talking stat to ' + value);
         Session.set('talking', value);
@@ -94,7 +111,7 @@ Meteor.startup(function() {
             console.warn('unsub');
             messageSubs.stop();
             Session.set('roomId', null);
-            Session.set('searching', true);
+            Session.set('searching', false); // TODO: was true
         } else if (value && roomId){
             // set roomId and subscrive to room messages
             console.warn('sub to ' + roomId);
@@ -109,6 +126,11 @@ Meteor.startup(function() {
     Meteor.autorun(function() {
         if (Meteor.user()) {
             socket.emit('loggedIn', Meteor.user()._id);
+            sessionHandle = Meteor.subscribe('sessions', Meteor.user()._id);
+        } else {
+            if (sessionHandle) {
+                sessionHandle.stop();
+            }
         }
     });
 });

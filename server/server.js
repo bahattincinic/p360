@@ -20,8 +20,7 @@ var Fiber = Npm.require('fibers');
 app.listen(4000);               // socketio listens on 4000
 var shuffleName = 'x00x';       // our one and only  shuffle object name
 var pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
-var roomWatch = [];             // currently in use rooms designed as
-                                // {'roomid': room.id, 'roomHandle': roomHandle}
+
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -58,14 +57,6 @@ Meteor.startup(function() {
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
-                // if this session is exhausted of sockets
-                // and was in use (i.e. talking) then
-                // reflect that event to room as well.
-                session = Sessions.findOne({'_id': session._id});
-                if (session.talking && session.room && session.sockets.length == 0) {
-                    console.log('this socket was in use in a session and room, cleanup');
-                    Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
-                }
             }).run();
         });
 
@@ -109,12 +100,6 @@ Meteor.startup(function() {
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
-
-                session = Sessions.findOne({'_id': session._id});
-                if (session.talking && session.room && session.sockets.length == 0) {
-                    console.log('this socket was in use in a session and room, cleanup');
-                    Rooms.update({'_id': session.room}, {$addToSet: {'stopWatch': session._id}});
-                }
             }).run();
         });
 
@@ -122,24 +107,50 @@ Meteor.startup(function() {
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
-                    throw Meteor.Meteor.Error(500,
-                        'Error 404: Not found',
-                        'session not found when leaving');
+                    throw Meteor.Meteor.Error(500, 'session not found when leaving..');
+                    return;
                 }
 
-                console.log('session: ' + session._id);
-
                 var room = Rooms.findOne({'sessions': {$in: [session._id]}});
-                console.log('room: ' + room._id);
-                Rooms.update(
-                    {'_id': room._id},
-                    {$addToSet: {'stopWatch': session._id}});
-                // TODO: add leaving user to shuffle after this
+                if (!room.isActive) {
+                    throw new Meteor.Error(500, 'room already inactive');
+                    return;
+                }
+
+                // announce to room that we are no longer talking
+                io.to(room._id).emit('talking', false, null);
+                Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
+
+                console.log('process room: ' + room._id);
+                _.each(room.sessions, function(session) {
+                    console.log('process leave for sessions: ' + session);
+                    // set session as not talking
+                    Sessions.update({'_id': session},
+                        {$set: {'talking': false, 'room': null}});
+
+                    // make all sockets leave the room
+                    var inner = Sessions.findOne({'_id': session});
+                    _.each(inner.sockets, function(sId) {
+                        var needle  = _.find(pile, function(item) {
+                            return item.socketid == sId;
+                        });
+
+                        if (!needle) {
+                            console.error('needle not found!');
+                            throw Meteor.Error(404, 'Error 404: Not found', details);
+                        }
+
+                        needle.socket.leave(room._id);
+                    })
+
+                    // // add user to shuffle
+                    // Shuffle.update({'name': shuffleName},
+                    //     {$addToSet: {'shuffle': session.userId}});
+                });
             }).run();
         });
 
         socket.on('message', function(body) {
-            // gather
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 // make sure we have a takling active session
@@ -191,11 +202,6 @@ Meteor.startup(function() {
                 console.log(a);
             });
         },
-        lw: function() {
-            _.each(roomWatch, function(w) {
-                console.log(w);
-            });
-        },
         lm: function() {
             var aa = Messages.find().fetch();
             _.each(aa, function(a) {
@@ -217,11 +223,8 @@ Meteor.startup(function() {
         v: function(userId) {
             // TODO: rename this func
             if (!userId) return;
-
-            Shuffle.upsert({'name': shuffleName}, {$addToSet: {'shuffle': userId}});
-        },
-        is: function() {
-            console.log(Shuffle.find({}).count());
+            Shuffle.upsert({'name': shuffleName},
+                {$addToSet: {'shuffle': userId}});
         },
         p: function() {
             console.log(pile.length);
@@ -237,14 +240,13 @@ Meteor.publish('messages', function(roomId) {
     return Messages.find({'roomId': roomId});
 });
 
-Meteor.publish('users', function(){
+Meteor.publish('users', function() {
     return Meteor.users.find({});
 });
 
-Meteor.publish('sessions', function() {
-    return Sessions.find({});
+Meteor.publish('sessions', function(userId) {
+    return Sessions.find({'userId': userId});
 });
-
 
 Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
@@ -263,47 +265,7 @@ Shuffle.find({'name': shuffleName}).observe({
 
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
-                'stopWatch': [],
                 'isActive': true
-            });
-
-            // TODO: get a handle from  observe
-            // and stop it once room is not active anymore
-            var roomHandle = Rooms.find({'_id': roomId}).observe({
-                changed: function (newDocument, oldDocument) {
-                    var room = Rooms.findOne({'_id': roomId});
-
-                    if (room.stopWatch.length == 2) {
-                        // both of the clients wants to leave the room
-                        io.to(room._id).emit('talking', false, null);
-                        Rooms.update({'_id': room._id},
-                            {$set: {'isActive': false}});
-                        // drop handle, we no more require observe to run
-                        var watchHandle = _.find(roomWatch, function(item) {
-                            return item.roomid == room._id;
-                        });
-
-                        if (!watchHandle) {
-                            console.error('cannot find room handle');
-                            throw new Meteor.Meteor.Error(500, 'cannot find room handle');
-                        }
-                        // stop observing for this room
-                        watchHandle.roomHandle.stop();
-                        // remove this room from the watch
-                        roomWatch.splice(roomWatch.indexOf(watchHandle), 1);
-                    } else if (room.stopWatch.length == 1) {
-                        // TODO: create a time here
-                        // so that when timer expires
-                        // it destroys the room
-                        console.log('will create timer here');
-                    }
-                }
-            });
-
-            // watch this room for changes
-            roomWatch.push({
-                'roomid': roomId,
-                'roomHandle': roomHandle
             });
 
             console.log('roomId: ' + roomId);
@@ -333,6 +295,6 @@ Shuffle.find({'name': shuffleName}).observe({
             Shuffle.update({'name': shuffleName}, {
                 $pullAll: {'shuffle': [bob._id, judy._id]}
             });
-        } // shuffle.length > 1
+        }
     }
 });
