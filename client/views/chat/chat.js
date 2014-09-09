@@ -3,6 +3,9 @@ var messageSubs;
 var sessionHandle;
 var observeHandle;
 
+Session.setDefault('talking', false);
+Session.setDefault('searching', false);
+
 Template.chat.events({
     'click #show_hide': function(e, t){
         $(".settings").stop().slideToggle();
@@ -75,16 +78,6 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
-// Template.chat.session = function() {
-//     console.log('running session');
-//     if (sessionHandle) {
-//         var _session =  Sessions.findOne({});
-//         return _session._id;
-//     } else {
-//         return "None";
-//     }
-// };
-
 Template.chat.isTalking = function() {
     return Session.get('talking');
 };
@@ -94,14 +87,9 @@ Template.chat.isSearching = function(){
 };
 
 
-
 Meteor.startup(function() {
-    Session.set('talking', false);
-    Session.set('searching', false);
     socket = io.connect('http://l:4000');
-    window.socket = socket;
 
-    // TODO: replace this code here with ddp sessions
     socket.on('talking', function(value, roomId) {
         console.log('change talking stat to ' + value);
         Session.set('talking', value);
@@ -111,14 +99,16 @@ Meteor.startup(function() {
             console.warn('unsub');
             messageSubs.stop();
             Session.set('roomId', null);
-            Session.set('searching', false); // TODO: was true
         } else if (value && roomId){
             // set roomId and subscrive to room messages
             console.warn('sub to ' + roomId);
             Session.set('roomId', roomId);
             messageSubs = Meteor.subscribe('messages', roomId);
-            Session.set('searching', false);
         }
+    });
+
+    socket.on('searching', function(value) {
+        Session.set('searching', value);
     });
 
     Meteor.subscribe('users');
@@ -130,18 +120,21 @@ Meteor.startup(function() {
             observeHandle = Sessions.find({'userId': Meteor.user()._id}).observe({
                 added: function (document) {
                     console.log('added session');
+                    Session.set('talking', document.talking);
+                    Session.set('searching', document.searching);
                 },
                 changed: function (newDocument, oldDocument) {
                     console.log('changed session');
+                    Session.set('talking', newDocument.talking);
+                    Session.set('searching', newDocument.searching);
                     console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
-                },
-                removed: function (oldDocument) {
-                    console.log('session removed');
                 }
             });
         } else {
             if (sessionHandle) {
+                console.log('stop sessions/....');
                 sessionHandle.stop();
+                observeHandle.stop();
             }
         }
     });

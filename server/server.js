@@ -53,10 +53,61 @@ Meteor.startup(function() {
                     console.error('no session!');
                     return;
                 }
+
                 // reflect socket disconnection to its session
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
+                session = Sessions.findOne({'_id': session._id});
+                if (session.room) {
+                    var room = Rooms.findOne({'_id': session.room});
+                    if (room.isActive) {
+                        socket.leave(room._id);
+                    }
+                }
+
+                // any other sockets left for this disconnecting session?
+                if (session.sockets.length == 0) {
+                    // if no than set this session as non-talking, non-searching session
+                    Sessions.update({'_id': session._id},
+                        {$set: {'talking': false, 'searching': false}});
+                    // check if this session was in use in a room
+                    if (session.room) {
+                        var room = Rooms.findOne({'_id': session.room});
+                        // and room is active..
+                        if (room && room.sessions.length == 2 && room.isActive) {
+                            // get other guy
+                            var remaining = _.without(room.sessions, session._id);
+                            if (remaining.length != 1) {
+                                throw new Meteor.Error(500, 'remaining length');
+                                return;
+                            }
+                            Sessions.update({'_id': remaining[0]},
+                                {$set: {
+                                    'talking': false,
+                                    'searching': true,
+                                    'room': null
+                                }});
+                            var otherSession = Sessions.findOne({'_id': remaining[0]});
+                            _.each(otherSession.sockets, function(_socket) {
+                                var retract = _.find(pile, function(item) {
+                                    return item.socketid == _socket;
+                                });
+
+                                if (!retract) {
+                                    throw new Meteor.Error(500, 'no socket to retract from pile!');
+                                    return;
+                                }
+
+                                retract.socket.leave(room._id);
+                            });
+
+                            // add other party to shuffle list
+                            Shuffle.update({'name': shuffleName},
+                                {$addToSet: {'shuffle': otherSession.userId}});
+                        }
+                    }
+                }
             }).run();
         });
 
@@ -74,6 +125,7 @@ Meteor.startup(function() {
                         'sockets': [socket.id],
                         'room': null,
                         'talking': false,
+                        'searching': false,
                         'socketCount': 1
                     });
                 } else {
@@ -100,9 +152,61 @@ Meteor.startup(function() {
                 Sessions.update(
                     {'_id': session._id},
                     {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
+                session = Sessions.findOne({'_id': session._id});
+                if (session.room) {
+                    var room = Rooms.findOne({'_id': session.room});
+                    if (room.isActive) {
+                        socket.leave(room._id);
+                    }
+                }
+
+                // any other sockets left for this disconnecting session?
+                if (session.sockets.length == 0) {
+                    // if no than set this session as non-talking, non-searching session
+                    Sessions.update({'_id': session._id},
+                        {$set: {'talking': false, 'searching': false}});
+                    // check if this session was in use in a room
+                    if (session.room) {
+                        var room = Rooms.findOne({'_id': session.room});
+                        // and room is active..
+                        if (room && room.sessions.length == 2 && room.isActive) {
+                            // get other guy
+                            var remaining = _.without(room.sessions, session._id);
+                            if (remaining.length != 1) {
+                                throw new Meteor.Error(500, 'remaining length');
+                                return;
+                            }
+
+                            Sessions.update({'_id': remaining[0]},
+                                {$set: {
+                                    'talking': false,
+                                    'searching': true,
+                                    'room': null
+                                }});
+                            var otherSession = Sessions.findOne({'_id': remaining[0]});
+                            _.each(otherSession.sockets, function(_socket){
+                                var retract = _.find(pile, function(item) {
+                                    return item.socketid == _socket;
+                                });
+
+                                if (!retract) {
+                                    throw new Meteor.Error(500, 'no socket to retract from pile!');
+                                    return;
+                                }
+
+                                retract.socket.leave(room._id);
+                            });
+
+                            // add other party to shuffle list
+                            Shuffle.update({'name': shuffleName},
+                                {$addToSet: {'shuffle': otherSession.userId}});
+                        }
+                    }
+                }
             }).run();
         });
 
+        // when clients presses 'next'
         socket.on('leave', function() {
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
@@ -111,8 +215,9 @@ Meteor.startup(function() {
                     return;
                 }
 
-                var room = Rooms.findOne({'sessions': {$in: [session._id]}});
-                if (!room.isActive) {
+                var room = Rooms.findOne({'sessions': {$in: [session._id]}, 'isActive': true});
+                if (!room) {
+                    Meteor.call('lr');
                     throw new Meteor.Error(500, 'room already inactive');
                     return;
                 }
@@ -126,7 +231,11 @@ Meteor.startup(function() {
                     console.log('process leave for sessions: ' + session);
                     // set session as not talking
                     Sessions.update({'_id': session},
-                        {$set: {'talking': false, 'room': null}});
+                        {$set: {
+                            'talking': false,
+                            'room': null,
+                            'searching': true
+                        }});
 
                     // make all sockets leave the room
                     var inner = Sessions.findOne({'_id': session});
@@ -143,9 +252,9 @@ Meteor.startup(function() {
                         needle.socket.leave(room._id);
                     })
 
-                    // // add user to shuffle
-                    // Shuffle.update({'name': shuffleName},
-                    //     {$addToSet: {'shuffle': session.userId}});
+                    // add user to shuffle
+                    Shuffle.update({'name': shuffleName},
+                        {$addToSet: {'shuffle': inner.userId}});
                 });
             }).run();
         });
@@ -272,7 +381,11 @@ Shuffle.find({'name': shuffleName}).observe({
             // set all sessions as 'talking'
             _.each(ss, function(s) {
                 Sessions.update({'_id': s._id},
-                    {$set: {'talking': true, 'room': roomId}});
+                    {$set: {
+                        'talking': true,
+                        'searching': false,
+                        'room': roomId
+                    }});
 
                 _.each(s.sockets, function(socketId) {
                     var needle  = _.find(pile, function(item) {
