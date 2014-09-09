@@ -18,9 +18,8 @@ var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
 
 app.listen(4000);               // socketio listens on 4000
-var shuffleName = 'x00x';       // our one and only  shuffle object name
-var pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
-
+shuffleName = 'x00x';       // our one and only  shuffle object name
+pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -37,16 +36,11 @@ Meteor.startup(function() {
 
         socket.on('disconnect', function() {
             // remove socket from pile
-            var retract = _.find(pile, function(item) {
-                return item.socketid == socket.id;
-            });
-
-            if (!retract) console.error('no socket to retract from pile!');
-            var index = pile.indexOf(retract);
-            pile.splice(index, 1);
-
             Fiber(function() {
                 console.warn('disconnected: ' + socket.id);
+                var retract = Meteor.call('findSocket', socket.id);
+                var index = pile.indexOf(retract);
+                pile.splice(index, 1);
 
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
@@ -90,15 +84,7 @@ Meteor.startup(function() {
                                 }});
                             var otherSession = Sessions.findOne({'_id': remaining[0]});
                             _.each(otherSession.sockets, function(_socket) {
-                                var retract = _.find(pile, function(item) {
-                                    return item.socketid == _socket;
-                                });
-
-                                if (!retract) {
-                                    throw new Meteor.Error(500, 'no socket to retract from pile!');
-                                    return;
-                                }
-
+                                var retract = Meteor.call('findSocket', _socket);
                                 retract.socket.leave(room._id);
                             });
 
@@ -184,16 +170,8 @@ Meteor.startup(function() {
                                     'room': null
                                 }});
                             var otherSession = Sessions.findOne({'_id': remaining[0]});
-                            _.each(otherSession.sockets, function(_socket){
-                                var retract = _.find(pile, function(item) {
-                                    return item.socketid == _socket;
-                                });
-
-                                if (!retract) {
-                                    throw new Meteor.Error(500, 'no socket to retract from pile!');
-                                    return;
-                                }
-
+                            _.each(otherSession.sockets, function(_socket) {
+                                var retract = Meteor.call('findSocket', _socket);
                                 retract.socket.leave(room._id);
                             });
 
@@ -240,15 +218,7 @@ Meteor.startup(function() {
                     // make all sockets leave the room
                     var inner = Sessions.findOne({'_id': session});
                     _.each(inner.sockets, function(sId) {
-                        var needle  = _.find(pile, function(item) {
-                            return item.socketid == sId;
-                        });
-
-                        if (!needle) {
-                            console.error('needle not found!');
-                            throw Meteor.Error(404, 'Error 404: Not found', details);
-                        }
-
+                        var needle = Meteor.call('findSocket', sId);
                         needle.socket.leave(room._id);
                     })
 
@@ -388,15 +358,7 @@ Shuffle.find({'name': shuffleName}).observe({
                     }});
 
                 _.each(s.sockets, function(socketId) {
-                    var needle  = _.find(pile, function(item) {
-                        return item.socketid == socketId;
-                    });
-
-                    if (!needle) {
-                        console.error('needle not found!');
-                        throw Meteor.Error(404, 'Error 404: Not found', details);
-                    }
-
+                    var needle = Meteor.call('findSocket', socketId);
                     needle.socket.join(roomId);
                 });
             });

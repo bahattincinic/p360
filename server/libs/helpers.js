@@ -11,4 +11,15 @@ Meteor.methods({
             return false;
         }
     },
+    findSocket: function(socketId) {
+        var retract = _.find(pile, function(item) {
+            return item.socketid == socketId;
+        });
+
+        if (!retract) {
+            throw new Meteor.Error(500, 'cannot find socket');
+            return;
+        }
+        return retract;
+    }
 });
