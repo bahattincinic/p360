@@ -18,8 +18,8 @@ var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
 
 app.listen(4000);               // socketio listens on 4000
-shuffleName = 'x00x';       // our one and only  shuffle object name
-pile = [];                  // our pile of sockets {'socketid': socket.id, 'socket': socket}
+shuffleName = 'x00x';           // our one and only  shuffle object name
+pile = [];                      // our pile of sockets {'socketid': socket.id, 'socket': socket}
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -28,6 +28,7 @@ Meteor.startup(function() {
     Shuffle.remove({});
     Rooms.remove({});
     pile.length = 0;
+
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
@@ -42,58 +43,7 @@ Meteor.startup(function() {
                 var index = pile.indexOf(retract);
                 pile.splice(index, 1);
 
-                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
-                if (!session) {
-                    console.error('no session!');
-                    return;
-                }
-
-                // reflect socket disconnection to its session
-                Sessions.update(
-                    {'_id': session._id},
-                    {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
-                session = Sessions.findOne({'_id': session._id});
-                if (session.room) {
-                    var room = Rooms.findOne({'_id': session.room});
-                    if (room.isActive) {
-                        socket.leave(room._id);
-                    }
-                }
-
-                // any other sockets left for this disconnecting session?
-                if (session.sockets.length == 0) {
-                    // if no than set this session as non-talking, non-searching session
-                    Sessions.update({'_id': session._id},
-                        {$set: {'talking': false, 'searching': false}});
-                    // check if this session was in use in a room
-                    if (session.room) {
-                        var room = Rooms.findOne({'_id': session.room});
-                        // and room is active..
-                        if (room && room.sessions.length == 2 && room.isActive) {
-                            // get other guy
-                            var remaining = _.without(room.sessions, session._id);
-                            if (remaining.length != 1) {
-                                throw new Meteor.Error(500, 'remaining length');
-                                return;
-                            }
-                            Sessions.update({'_id': remaining[0]},
-                                {$set: {
-                                    'talking': false,
-                                    'searching': true,
-                                    'room': null
-                                }});
-                            var otherSession = Sessions.findOne({'_id': remaining[0]});
-                            _.each(otherSession.sockets, function(_socket) {
-                                var retract = Meteor.call('findSocket', _socket);
-                                retract.socket.leave(room._id);
-                            });
-
-                            // add other party to shuffle list
-                            Shuffle.update({'name': shuffleName},
-                                {$addToSet: {'shuffle': otherSession.userId}});
-                        }
-                    }
-                }
+                Meteor.socket(socket).disconnect();
             }).run();
         });
 
@@ -127,60 +77,8 @@ Meteor.startup(function() {
         });
 
         socket.on('loggedOut', function() {
-            // TODO: loggedOut and disconnect needs to be merged/refactored
             Fiber(function() {
-                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
-                if (!session) {
-                    console.warn('no session on logout!');
-                    return;
-                }
-
-                Sessions.update(
-                    {'_id': session._id},
-                    {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
-                session = Sessions.findOne({'_id': session._id});
-                if (session.room) {
-                    var room = Rooms.findOne({'_id': session.room});
-                    if (room.isActive) {
-                        socket.leave(room._id);
-                    }
-                }
-
-                // any other sockets left for this disconnecting session?
-                if (session.sockets.length == 0) {
-                    // if no than set this session as non-talking, non-searching session
-                    Sessions.update({'_id': session._id},
-                        {$set: {'talking': false, 'searching': false}});
-                    // check if this session was in use in a room
-                    if (session.room) {
-                        var room = Rooms.findOne({'_id': session.room});
-                        // and room is active..
-                        if (room && room.sessions.length == 2 && room.isActive) {
-                            // get other guy
-                            var remaining = _.without(room.sessions, session._id);
-                            if (remaining.length != 1) {
-                                throw new Meteor.Error(500, 'remaining length');
-                                return;
-                            }
-
-                            Sessions.update({'_id': remaining[0]},
-                                {$set: {
-                                    'talking': false,
-                                    'searching': true,
-                                    'room': null
-                                }});
-                            var otherSession = Sessions.findOne({'_id': remaining[0]});
-                            _.each(otherSession.sockets, function(_socket) {
-                                var retract = Meteor.call('findSocket', _socket);
-                                retract.socket.leave(room._id);
-                            });
-
-                            // add other party to shuffle list
-                            Shuffle.update({'name': shuffleName},
-                                {$addToSet: {'shuffle': otherSession.userId}});
-                        }
-                    }
-                }
+                Meteor.socket(socket).disconnect();
             }).run();
         });
 
@@ -334,6 +232,7 @@ Shuffle.find({'name': shuffleName}).observe({
         if (shuffle && shuffle.shuffle.length > 1) {
             // match make here
             console.log('match needed!')
+            // TODO: change algo here
             var list = shuffle.shuffle;
             var bob = Meteor.users.findOne({'_id': list[0]});
             var judy = Meteor.users.findOne({'_id': list[1]});
