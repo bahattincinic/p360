@@ -40,7 +40,7 @@ Template.chat.events({
                     { $set: { 'username': username} }
                 );
                 // change new_passwordd
-                if(new_password != ''){
+                if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
                 Session.set('update_message', 'Profile has been updated');
@@ -91,7 +91,7 @@ Template.chat.isSearching = function(){
 
 Template.chat.infoMessage = function(){
     return Session.get('update_message') || '';
-}
+};
 
 Template.chat.getAvatar = function(){
     // var room = Rooms.find().fetch();
@@ -107,8 +107,8 @@ Template.chat.getAvatar = function(){
 
     //     return avatar[0].avatar || '';
     // }
-    return ''
-}
+    return '';
+};
 
 
 Meteor.startup(function() {
