@@ -40,11 +40,11 @@ Template.chat.events({
     'submit #changeForm': function(e, form){
         e.preventDefault();
         var username =  form.find('#update-username').value;
-        var password = Package.sha.SHA256(form.find('#current-password').value);
         var new_password = form.find('#new-password').value;
-        Meteor.call('checkPassword', password, function(err, result) {
-            // password matched
-            if (result) {
+        Meteor.call('checkUsername', username, function(err, result){
+            if(result && Meteor.user().username != username){
+                Session.set('update_message', 'username already in exists');
+            }else{
                 Meteor.users.update(
                     { '_id': Meteor.userId() },
                     { $set: { 'username': username} }
@@ -53,10 +53,8 @@ Template.chat.events({
                 if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
+
                 Session.set('updateMessage', 'Profile has been updated');
-            }else{
-                Session.set('updateMessage', 'Secket Key Invalid');
-                form.find('#current-password').value = '';
             }
         });
     },
@@ -111,19 +109,18 @@ Template.chat.isTyping = function() {
 }
 
 Template.chat.getAvatar = function(){
-    // var room = Rooms.find().fetch();
-    // if(room.length > 0){
-    //     var username = Meteor.user().username
-    //     // active room
-    //     room = room[0];
-    //     // get other avatar
-    //     var avatar = _.find(room.avatars, function(item) {
-    //         return item.username != username;
-    //     });
-    //     console.log(avatar);
+    var room = Rooms.find().fetch();
+    if(room.length > 0){
+        var username = Meteor.user().username
+        // active room
+        room = room[0];
+        // get other avatar
+        var other = _.find(room.avatars, function(item) {
+            return item.username != username;
+        });
 
-    //     return avatar[0].avatar || '';
-    // }
+        return other.avatar || '';
+    }
     return '';
 };
 
@@ -162,12 +159,10 @@ Meteor.startup(function() {
             sessionHandle = Meteor.subscribe('sessions', Meteor.user()._id);
             observeHandle = Sessions.find({'userId': Meteor.user()._id}).observe({
                 added: function (document) {
-                    console.log('added session');
                     Session.set('talking', document.talking);
                     Session.set('searching', document.searching);
                 },
                 changed: function (newDocument, oldDocument) {
-                    console.log('changed session');
                     Session.set('talking', newDocument.talking);
                     Session.set('searching', newDocument.searching);
                     console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
