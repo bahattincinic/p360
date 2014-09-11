@@ -68,8 +68,7 @@ Template.chat.events({
 Template.chat.events({
     'click .ping': function() {
         if (Session.get('talking')) return;
-        var response = Meteor.call('v', Meteor.user()._id);
-        Session.set('searching', true);
+        var response = Meteor.call('startSearching', Meteor.user()._id);
     }
 });
 
@@ -95,17 +94,19 @@ Template.chat.infoMessage = function(){
 }
 
 Template.chat.getAvatar = function(){
-    var room = Rooms.find().fetch();
-    if(room.length > 0){
-        var username = Meteor.user().username
-        // active room
-        room = room[0];
-        // get other avatar
-        var avatar = _.find(room.avatars, function(item) {
-            return item.username != username;
-        });
-        return avatar[0].avatar || '';
-    }
+    // var room = Rooms.find().fetch();
+    // if(room.length > 0){
+    //     var username = Meteor.user().username
+    //     // active room
+    //     room = room[0];
+    //     // get other avatar
+    //     var avatar = _.find(room.avatars, function(item) {
+    //         return item.username != username;
+    //     });
+    //     console.log(avatar);
+
+    //     return avatar[0].avatar || '';
+    // }
     return ''
 }
 

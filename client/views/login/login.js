@@ -4,22 +4,24 @@ Template.login.events({
         username = t.find('#account-username').value;
         secret = t.find('#account-secret').value;
         Meteor.loginWithPassword(username, secret, function(error) {
-            if(!error){
+            if (!error){
                 // login
                 return false;
             }
             // check password
             Meteor.call('checkUsername', username, function(err, result){
-                if(result){
+                if (result){
                     Session.set('message', 'username is being used / username or passord invalid');
                     t.find('#account-username').value = '';
                     t.find('#account-secret').value = '';
-                }else{
+                } else {
                     // register
                     Accounts.createUser({
-                    password: secret,
-                    username: username
-                }, function(err) {});
+                        password: secret,
+                        username: username
+                    }, function(err) {});
+                    // XXX callback really needed here
+                    // on createUser??
                 }
             });
         });

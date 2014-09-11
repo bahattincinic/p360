@@ -71,6 +71,7 @@ Meteor.startup(function() {
 
         socket.on('loggedOut', function() {
             Fiber(function() {
+                console.log('calling for logout');
                 Meteor.sockets.disconnect(socket);
             }).run();
         });
@@ -86,7 +87,6 @@ Meteor.startup(function() {
 
                 var room = Rooms.findOne({'sessions': {$in: [session._id]}, 'isActive': true});
                 if (!room) {
-                    Meteor.call('lr');
                     throw new Meteor.Error(500, 'room already inactive');
                     return;
                 }
@@ -167,37 +167,41 @@ Meteor.startup(function() {
             return Meteor.users.remove({});
         },
         lr: function() {
+            console.log('Rooms: ');
             var aa = Rooms.find().fetch();
             _.each(aa, function(a) {
                 console.log(a);
             });
+            console.log('-------------------------------');
         },
         lm: function() {
+            console.log('Messages: ');
             var aa = Messages.find().fetch();
             _.each(aa, function(a) {
                 console.log(a);
             });
+            console.log('-------------------------------');
         },
         ls: function() {
+            console.log('Sessions: ');
             var ss = Sessions.find().fetch();
             _.each(ss, function(a) {
                 console.log(a);
             });
+            console.log('-------------------------------');
         },
         s: function() {
+            console.log('Shuffle: ');
             var shuffle = Shuffle.find({}).fetch();
             _.each(shuffle, function(a) {
                 console.log(a);
             });
-        },
-        v: function(userId) {
-            // TODO: rename this func
-            if (!userId) return;
-            Shuffle.upsert({'name': shuffleName},
-                {$addToSet: {'shuffle': userId}});
+            console.log('-------------------------------');
         },
         p: function() {
+            console.log('Sockets: ');
             Meteor.sockets.show();
+            console.log('-------------------------------');
         }
     });
 });

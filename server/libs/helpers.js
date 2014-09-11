@@ -18,14 +18,22 @@ Meteor.methods({
         // false: not exists
         return user? true: false;
     },
-    // TODO: move this into Meteor.socket()
-    findSocket: function(socketId) {
+    startSearching: function(userId) {
+        if (!userId) return;
+        Shuffle.upsert({'name': shuffleName},
+            {$addToSet: {'shuffle': userId}});
 
-    },
-    // TODO: add this to Meteor.socket() maybe
-    removeSocket: function(socketId) {
-        var retract = Meteor.call('findSocket', socketId);
+        // get session for this user
+        var userSession = Sessions.findOne({'userId': userId});
+        if (!userSession) {
+            // user must have a session at this point
+            throw new Meteor.Error(500, 'user must have session');
+            return;
+        }
 
+        // mark this sessions as searching
+        Sessions.update({'_id': userSession._id},
+            {$set: {'searching': true}});
     }
 });
 
@@ -113,19 +121,24 @@ function Staple() {
                 throw new Meteor.Error(500, 'remaining length');
                 return;
             }
+
+            var otherSessionId = remaining[0];
             Sessions.update(
-                {'_id': remaining[0]},
+                {'_id': otherSessionId},
                 {$set: {
                     'talking': false,
                     'searching': true,
                     'room': null
                 }}
             );
-            var otherSession = Sessions.findOne({'_id': remaining[0]});
-            _.each(otherSession.sockets, function(_socket) {
-                var retract = Meteor.call('findSocket', _socket);
+
+            var otherSession = Sessions.findOne({'_id': otherSessionId});
+            // in here var xxx is socket id
+            _.each(otherSession.sockets, function(xxx) {
+                var retract = self.findOne(xxx);
                 retract.socket.leave(room._id);
             });
+
 
             // add other party to shuffle list
             Shuffle.update({'name': shuffleName},
