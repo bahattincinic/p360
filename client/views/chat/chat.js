@@ -66,9 +66,15 @@ Template.chat.events({
 });
 
 Template.chat.events({
+    // starts searching for a room
     'click .ping': function() {
         if (Session.get('talking')) return;
-        var response = Meteor.call('startSearching', Meteor.user()._id);
+        Meteor.call('startSearching', Meteor.user()._id);
+    },
+    // stops searching for a room
+    'click #don': function() {
+        if (Session.get('talking')) return;
+        Meteor.call('stopSearching', Meteor.user()._id);
     }
 });
 

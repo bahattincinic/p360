@@ -1,4 +1,3 @@
-
 Meteor.methods({
     checkPassword: function(digest) {
         check(digest, String);
@@ -18,6 +17,8 @@ Meteor.methods({
         // false: not exists
         return user? true: false;
     },
+    // called when user clicked on 'ping' button
+    // adds user to shuffle list, marks user Session as 'searching'
     startSearching: function(userId) {
         if (!userId) return;
         Shuffle.upsert({'name': shuffleName},
@@ -34,6 +35,24 @@ Meteor.methods({
         // mark this sessions as searching
         Sessions.update({'_id': userSession._id},
             {$set: {'searching': true}});
+    },
+    // reverts 'startSearching' effects
+    // removes user from Shuffle list and fixes user Session
+    stopSearching: function(userId) {
+        if (!userId) return;
+
+        var shuffle = Shuffle.findOne({'name': shuffleName});
+        if (!shuffle) throw new Meteor.Error(500, 'no shuffle record');
+
+        var userSession = Sessions.findOne({'userId': userId});
+        if (!userSession || userSession.talking || !userSession.searching)
+            throw new Meteor.Error(500, 'session problem while stopSearching, ' +
+                'check session');
+
+        // remove user from Shuffle
+        Shuffle.update({'name': shuffleName}, {$pull: {'shuffle': userId}});
+        // set user session as non-searching
+        Sessions.update({'_id': userSession._id}, {$set: {'searching': false}});
     }
 });
 
