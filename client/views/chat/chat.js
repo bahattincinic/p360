@@ -62,10 +62,7 @@ Template.chat.events({
         } else {
             console.warn('leave has no effect');
         }
-    }
-});
-
-Template.chat.events({
+    },
     // starts searching for a room
     'click .ping': function() {
         if (Session.get('talking')) return;
