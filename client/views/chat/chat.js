@@ -14,11 +14,9 @@ Template.chat.events({
         $(".settings").stop().slideToggle();
     },
     'keydown #input360': _.throttle(function(e, t) {
-        console.log('started');
         socket.emit('typing', true);
     }, 750, {trailing: false}),
     'keyup #input360' : _.debounce(function(e, t) {
-        console.log('stopped');
         socket.emit('typing', false);
     }, 1500, false),
     'click #logoutAction': function(e, t){
@@ -128,25 +126,6 @@ Template.chat.getAvatar = function(){
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
 
-    socket.on('talking', function(value, roomId) {
-        console.log('change talking state to ' + value);
-        Session.set('talking', value);
-        if (!value && messageSubs) {
-            // unsubscribe from messages
-            // and clear roomId
-            console.warn('unsub');
-            messageSubs.stop();
-            roomSub.stop();
-            Session.set('roomId', null);
-        } else if (value && roomId){
-            // set roomId and subscrive to room messages
-            console.warn('sub to ' + roomId);
-            Session.set('roomId', roomId);
-            messageSubs = Meteor.subscribe('messages', roomId);
-            roomSub = Meteor.subscribe('rooms', roomId);
-        }
-    });
-
     socket.on('typing', function(value) {
         Session.set('typing', value);
     });
@@ -163,8 +142,20 @@ Meteor.startup(function() {
                     Session.set('searching', document.searching);
                 },
                 changed: function (newDocument, oldDocument) {
+                    // set basic states
                     Session.set('talking', newDocument.talking);
                     Session.set('searching', newDocument.searching);
+                    // if session has room then subscribe to id
+                    if (newDocument.room) {
+                        messageSubs = Meteor.subscribe('messages', newDocument.room);
+                        roomSub = Meteor.subscribe('rooms', newDocument.room);
+                        Session.set('roomId', newDocument.room);
+                    } else {
+                        // no room, stop all subscriptions
+                        if (messageSubs) messageSubs.stop();
+                        if (roomSub) roomSub.stop();
+                        Session.set('roomId', null);
+                    }
                     console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
                 }
             });

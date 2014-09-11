@@ -34,14 +34,14 @@ Meteor.startup(function() {
 
         socket.on('disconnect', function() {
             Fiber(function() {
-                console.warn('disconnected: ' + socket.id);
+                console.log('disconnected: ' + socket.id);
                 Meteor.sockets.remove(socket);
                 Meteor.sockets.disconnect(socket);
             }).run();
         });
 
         socket.on('loggedIn', function(userId) {
-            console.warn('loggedin, setting session: ' + socket.id);
+            console.log('loggedin, setting session: ' + socket.id);
             Fiber(function() {
                 var user = Meteor.users.findOne({'_id': userId});
                 if (!user) return;
@@ -58,9 +58,10 @@ Meteor.startup(function() {
                         'socketCount': 1
                     });
                 } else {
-                    Sessions.update({'_id': session._id},{
-                        $addToSet: {'sockets': socket.id},
-                    });
+                    // do not reset talking or searching state here
+                    // since user might have other devices at this point
+                    Sessions.update({'_id': session._id},
+                        {$addToSet: {'sockets': socket.id}});
 
                     var one = Sessions.findOne({'_id': session._id});
                     Sessions.update(
@@ -86,14 +87,25 @@ Meteor.startup(function() {
                     return;
                 }
 
-                var room = Rooms.findOne({'sessions': {$in: [session._id]}, 'isActive': true});
-                if (!room) {
-                    throw new Meteor.Error(500, 'room already inactive');
-                    return;
-                }
+                // XXX remove before prod
+				var __rooms = Rooms.find({'sessions': {$in: [session._id]}, 'isActive': true}).fetch();
+				Meteor.assert(__rooms.length == 1,
+				    'there should only one active room for this session');
+				var __recorded_room = Rooms.find({'_id': session.room, 'isActive': true}).fetch();
+				Meteor.assert(__recorded_room.length == 1,
+				    'there should only one active room for this session');
+				Meteor.assert(__recorded_room[0]._id == __rooms[0]._id,
+				    'room ids do not match for this session');
+
+                var room = Rooms.findOne(
+                    {'sessions': {$in: [session._id]}, 'isActive': true});
+
+                // XXX remove before prod
+                Meteor.assert(room._id == __recorded_room[0]._id, 'room ids do not match');
+
+                if (!room) throw new Meteor.Error(500, 'room already inactive');
 
                 // announce to room that we are no longer talking
-                io.to(room._id).emit('talking', false, null);
                 Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
 
                 console.log('process room: ' + room._id);
@@ -107,12 +119,12 @@ Meteor.startup(function() {
                             'searching': true
                         }});
 
-                    // make all sockets leave the room
+//                    // make all sockets leave the room
                     var inner = Sessions.findOne({'_id': session});
-                    _.each(inner.sockets, function(sId) {
-                        var needle = Meteor.sockets.findOne(sId);
-                        needle.socket.leave(room._id);
-                    })
+//                    _.each(inner.sockets, function(sId) {
+//                        var needle = Meteor.sockets.findOne(sId);
+//                        needle.socket.leave(room._id);
+//                    })
 
                     // add user to shuffle
                     Shuffle.update({'name': shuffleName},
@@ -247,12 +259,13 @@ Meteor.publish('rooms', function(roomId){
 
 Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
-        console.log('shuffle changed!');
         var shuffle = Shuffle.findOne({'name': shuffleName});
+        if (!shuffle) throw new Meteor.Error(500, 'Shuffle not found!');
+
         if (shuffle && shuffle.shuffle.length > 1) {
             // match make here
             console.log('match needed!')
-            // TODO: change algo here
+            // XXX change algo here
             var list = shuffle.shuffle;
             var bob = Meteor.users.findOne({'_id': list[0]});
             var judy = Meteor.users.findOne({'_id': list[1]});
@@ -260,6 +273,17 @@ Shuffle.find({'name': shuffleName}).observe({
             var judySession = Sessions.findOne({'userId': judy._id});
             var ss = [Sessions.findOne({'userId': bob._id}),
                       Sessions.findOne({'userId': judy._id})];
+
+            // XXX remove at prod
+            _.each(ss, function(_session) {
+                Meteor.assert(_session, 'user session does ' +
+                    'not exists while matching');
+                Meteor.assert(!_session.talking, 'session should not be in talking mode');
+                Meteor.assert(!_session.room, 'session should not have a room');
+                Meteor.assert(_session.searching, 'should be in searching mode');
+                Meteor.assert(_session.sockets.length == _session.socketCount,
+                    'socket count non matching');
+            });
 
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
@@ -276,7 +300,6 @@ Shuffle.find({'name': shuffleName}).observe({
                 ]
             });
 
-            console.log('roomId: ' + roomId);
             // set all sessions as 'talking'
             _.each(ss, function(s) {
                 Sessions.update({'_id': s._id},
@@ -286,17 +309,14 @@ Shuffle.find({'name': shuffleName}).observe({
                         'room': roomId
                     }});
 
-                _.each(s.sockets, function(socketId) {
-                    var needle = Meteor.sockets.findOne(socketId);
-                    if (!needle)
-                        throw new Meteor.Error(500, 'no needle here');
-
-                    needle.socket.join(roomId);
-                });
+//                _.each(s.sockets, function(socketId) {
+//                    var needle = Meteor.sockets.findOne(socketId);
+//                    if (!needle)
+//                        throw new Meteor.Error(500, 'no needle here');
+//
+//                    needle.socket.join(roomId);
+//                });
             });
-
-            // send notification to all of room
-            io.to(roomId).emit('talking', true, roomId);
 
             // after all ops remove these guys from shuffle
             Shuffle.update({'name': shuffleName}, {

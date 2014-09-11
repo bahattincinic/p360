@@ -29,10 +29,10 @@ Meteor.methods({
         if (!userSession) {
             // user must have a session at this point
             throw new Meteor.Error(500, 'user must have session');
-            return;
         }
 
         // mark this sessions as searching
+        // XXX maybe set as talking false, room to null as well
         Sessions.update({'_id': userSession._id},
             {$set: {'searching': true}});
     },
@@ -42,7 +42,7 @@ Meteor.methods({
         if (!userId) return;
 
         var shuffle = Shuffle.findOne({'name': shuffleName});
-        if (!shuffle) throw new Meteor.Error(500, 'no shuffle record');
+        if (!shuffle) throw new Meteor.Error(500, 'no shuffle record!');
 
         var userSession = Sessions.findOne({'userId': userId});
         if (!userSession || userSession.talking || !userSession.searching)
@@ -117,7 +117,13 @@ function Staple() {
         }
 
         Sessions.update({'_id': session._id},
-            {$set: {'talking': false, 'searching': false}})
+            {$set: {'talking': false, 'searching': false}});
+
+        // if disconnecting user is somehow in shuffle remove her
+        if (Shuffle.findOne({'name': shuffleName})) {
+            Shuffle.update({'name': shuffleName},
+                {$pull: {'shuffle': session.userId}});
+        }
 
         if (!session.room) {
             // nothing more to do here
@@ -133,7 +139,7 @@ function Staple() {
             Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
 
             // take care of first guy
-            socket.leave(room._id);
+//            socket.leave(room._id);
             Sessions.update({'_id': session._id}, {$set: {'room': null}});
 
             // get other guy
@@ -152,12 +158,11 @@ function Staple() {
             );
 
             var otherSession = Sessions.findOne({'_id': otherSessionId});
-            // in here var xxx is socket id
-            _.each(otherSession.sockets, function(xxx) {
-                var retract = self.findOne(xxx);
-                retract.socket.leave(room._id);
-            });
-
+//            // in here var xxx is socket id
+//            _.each(otherSession.sockets, function(xxx) {
+//                var retract = self.findOne(xxx);
+//                retract.socket.leave(room._id);
+//            });
 
             // add other party to shuffle list
             Shuffle.update({'name': shuffleName},
@@ -167,3 +172,10 @@ function Staple() {
 };
 
 Meteor.sockets = new Staple();
+
+Meteor.assert = function(condition, message) {
+    if (!condition) {
+        message = message || 'Assertion failed';
+        throw new Meteor.Error(500, message);
+    }
+};
