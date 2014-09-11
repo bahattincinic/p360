@@ -121,7 +121,7 @@ Meteor.startup(function() {
     socket = io.connect('http://l:4000');
 
     socket.on('talking', function(value, roomId) {
-        console.log('change talking stat to ' + value);
+        console.log('change talking state to ' + value);
         Session.set('talking', value);
         if (!value && messageSubs) {
             // unsubscribe from messages
@@ -137,10 +137,6 @@ Meteor.startup(function() {
             messageSubs = Meteor.subscribe('messages', roomId);
             roomSub = Meteor.subscribe('rooms', roomId);
         }
-    });
-
-    socket.on('searching', function(value) {
-        Session.set('searching', value);
     });
 
     Meteor.subscribe('users');
