@@ -19,7 +19,6 @@ var Fiber = Npm.require('fibers');
 
 app.listen(4000);               // socketio listens on 4000
 shuffleName = 'x00x';           // our one and only  shuffle object name
-pile = [];                      // our pile of sockets {'socketid': socket.id, 'socket': socket}
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -27,23 +26,17 @@ Meteor.startup(function() {
     Meteor.users.remove({});
     Shuffle.remove({});
     Rooms.remove({});
-    pile.length = 0;
-
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
         console.log('connection socket with id: ' + socket.id);
-        pile.push({'socketid': socket.id, 'socket': socket});
+        Meteor.sockets.insert(socket);
 
         socket.on('disconnect', function() {
-            // remove socket from pile
             Fiber(function() {
                 console.warn('disconnected: ' + socket.id);
-                var retract = Meteor.call('findSocket', socket.id);
-                var index = pile.indexOf(retract);
-                pile.splice(index, 1);
-
-                Meteor.socket(socket).disconnect();
+                Meteor.sockets.remove(socket);
+                Meteor.sockets.disconnect(socket);
             }).run();
         });
 
@@ -78,7 +71,7 @@ Meteor.startup(function() {
 
         socket.on('loggedOut', function() {
             Fiber(function() {
-                Meteor.socket(socket).disconnect();
+                Meteor.sockets.disconnect(socket);
             }).run();
         });
 
@@ -87,7 +80,7 @@ Meteor.startup(function() {
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
-                    throw Meteor.Meteor.Error(500, 'session not found when leaving..');
+                    throw new Meteor.Error(500, 'session not found when leaving..');
                     return;
                 }
 
@@ -116,7 +109,7 @@ Meteor.startup(function() {
                     // make all sockets leave the room
                     var inner = Sessions.findOne({'_id': session});
                     _.each(inner.sockets, function(sId) {
-                        var needle = Meteor.call('findSocket', sId);
+                        var needle = Meteor.sockets.findOne(sId);
                         needle.socket.leave(room._id);
                     })
 
@@ -204,10 +197,7 @@ Meteor.startup(function() {
                 {$addToSet: {'shuffle': userId}});
         },
         p: function() {
-            console.log(pile.length);
-            _.each(pile, function(a) {
-                console.log(a.socketid);
-            });
+            Meteor.sockets.show();
         }
     });
 });
@@ -257,7 +247,10 @@ Shuffle.find({'name': shuffleName}).observe({
                     }});
 
                 _.each(s.sockets, function(socketId) {
-                    var needle = Meteor.call('findSocket', socketId);
+                    var needle = Meteor.sockets.findOne(socketId);
+                    if (!needle)
+                        throw new Meteor.Error(500, 'no needle here');
+
                     needle.socket.join(roomId);
                 });
             });
