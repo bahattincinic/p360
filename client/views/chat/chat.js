@@ -6,11 +6,21 @@ var roomSub;
 
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
+Session.setDefault('updateMessage', '');
+Session.setDefault('typing', false);
 
 Template.chat.events({
     'click #show_hide': function(e, t){
         $(".settings").stop().slideToggle();
     },
+    'keydown #input360': _.throttle(function(e, t) {
+        console.log('started');
+        socket.emit('typing', true);
+    }, 750, {trailing: false}),
+    'keyup #input360' : _.debounce(function(e, t) {
+        console.log('stopped');
+        socket.emit('typing', false);
+    }, 1500, false),
     'click #logoutAction': function(e, t){
         Meteor.logout(function(err){
             if(!err && socket) {
@@ -43,15 +53,15 @@ Template.chat.events({
                 if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
-                Session.set('update_message', 'Profile has been updated');
+                Session.set('updateMessage', 'Profile has been updated');
             }else{
-                Session.set('update_message', 'Secket Key Invalid');
+                Session.set('updateMessage', 'Secket Key Invalid');
                 form.find('#current-password').value = '';
             }
         });
     },
     'click #close-message': function(e, t){
-        Session.set('update_message', '');
+        Session.set('updateMessage', '');
     },
     'click #next': function(e, t) {
         console.log('clicked next');
@@ -93,8 +103,12 @@ Template.chat.isSearching = function(){
 };
 
 Template.chat.infoMessage = function(){
-    return Session.get('update_message') || '';
+    return Session.get('updateMessage');
 };
+
+Template.chat.isTyping = function() {
+    return Session.get('typing');
+}
 
 Template.chat.getAvatar = function(){
     // var room = Rooms.find().fetch();
@@ -134,6 +148,10 @@ Meteor.startup(function() {
             messageSubs = Meteor.subscribe('messages', roomId);
             roomSub = Meteor.subscribe('rooms', roomId);
         }
+    });
+
+    socket.on('typing', function(value) {
+        Session.set('typing', value);
     });
 
     Meteor.subscribe('users');

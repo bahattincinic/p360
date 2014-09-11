@@ -107,13 +107,8 @@ function Staple() {
         Sessions.update(
             {'_id': session._id},
             {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
+        // refresh session
         session = Sessions.findOne({'_id': session._id});
-        if (session.room) {
-            var room = Rooms.findOne({'_id': session.room});
-            if (room.isActive) {
-                socket.leave(room._id);
-            }
-        }
 
         // any other sockets left for this disconnecting session?
         if (session.sockets.length > 0) {
@@ -121,25 +116,30 @@ function Staple() {
             return;
         }
 
-        // if no than set this session as non-talking, non-searching session
         Sessions.update({'_id': session._id},
-            {$set: {'talking': false, 'searching': false}});
+            {$set: {'talking': false, 'searching': false}})
 
-        // check if this session was in use in a room
         if (!session.room) {
-            // nothing more to do
+            // nothing more to do here
             return;
         }
 
         var room = Rooms.findOne({'_id': session.room});
-        // and room is active..
-        if (room && room.sessions.length == 2 && room.isActive) {
+        if (!room) throw new Meteor.Error(500, 'unable to find room');
+
+        // check if room was active
+        if (room.sessions.length == 2 && room.isActive) {
+            // mark room as inactive
+            Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
+
+            // take care of first guy
+            socket.leave(room._id);
+            Sessions.update({'_id': session._id}, {$set: {'room': null}});
+
             // get other guy
             var remaining = _.without(room.sessions, session._id);
-            if (remaining.length != 1) {
-                throw new Meteor.Error(500, 'remaining length');
-                return;
-            }
+            if (remaining.length != 1)
+                throw new Meteor.Error(500, 'no other session');
 
             var otherSessionId = remaining[0];
             Sessions.update(

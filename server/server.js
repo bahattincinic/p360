@@ -61,6 +61,7 @@ Meteor.startup(function() {
                     Sessions.update({'_id': session._id},{
                         $addToSet: {'sockets': socket.id},
                     });
+
                     var one = Sessions.findOne({'_id': session._id});
                     Sessions.update(
                         {'_id': session._id},
@@ -126,19 +127,16 @@ Meteor.startup(function() {
                 // make sure we have a takling active session
                 if (!session || !session.talking || !session.room) {
                     throw Meteor.Error(500, 'unable to find session');
-                    return;
                 }
 
                 var room = Rooms.findOne({'_id': session.room});
                 if (!room || !room.isActive || room.sessions.length != 2) {
-                    throw Meteor.Error(500, 'unable to find room');
-                    return;
+                    throw Meteor.Error(500, 'unable to find a legit room');
                 }
 
                 var remaining = _.without(room.sessions, session._id);
                 if (remaining.length != 1) {
                     throw Meteor.Error(500, 'remaining');
-                    return;
                 }
 
                 var toSession = Sessions.findOne({'_id': remaining[0]});
@@ -146,13 +144,37 @@ Meteor.startup(function() {
                 var from = Meteor.users.findOne({'_id': session.userId}).username;
                 var to = Meteor.users.findOne({'_id': toSession.userId}).username;
 
-                // TODO: maybe do not block here
                 Messages.insert({
                     'body': body,
                     'createdAt': Date.now(),
                     'from': from,
                     'to': to,
                     'roomId': room._id
+                });
+            }).run();
+        });
+
+        socket.on('typing', function(value) {
+            Fiber(function() {
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
+
+                if (!session || !session.talking || !session.room) {
+                    throw Meteor.Error(500, 'unable to find session');
+                }
+
+                var room = Rooms.findOne({'_id': session.room});
+                if (!room || !room.isActive || room.sessions.length != 2) {
+                    throw Meteor.Error(500, 'unable to find a legit room');
+                }
+
+                var remaining = _.without(room.sessions, session._id);
+                if (remaining.length != 1) {
+                    throw Meteor.Error(500, 'remaining');
+                }
+
+                var toSession = Sessions.findOne({'_id': remaining[0]});
+                _.each(toSession.sockets, function(otherSocket) {
+                    Meteor.sockets.findOne(otherSocket).socket.emit('typing', value);
                 });
             }).run();
         });

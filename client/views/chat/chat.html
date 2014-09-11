@@ -69,7 +69,9 @@
                 <div class="chat_status">
                     <ul>
                         <li class="sound_off"><a href="#"  title="Mute"></a></li>
-                        <li class="typing"><i title="Typing...">typing...</i></li>
+                        {{#if isTyping }}
+                            <li class="typing"><i title="Typing...">typing...</i></li>
+                        {{/if}}
                     </ul>
                 </div>
                 <form id='form360'>
