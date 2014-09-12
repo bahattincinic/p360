@@ -237,7 +237,17 @@ Shuffle.find({'name': shuffleName}).observe({
 
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
-                'isActive': true
+                'isActive': true,
+                'avatars': [
+                    {
+                        'username': bob.username,
+                        'avatar': bob.avatar || ''
+                    },
+                    {
+                        'username': judy.username,
+                        'avatar': judy.avatar || ''
+                    }
+                ]
             });
 
             console.log('roomId: ' + roomId);

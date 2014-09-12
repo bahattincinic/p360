@@ -94,6 +94,21 @@ Template.chat.infoMessage = function(){
     return Session.get('update_message') || '';
 }
 
+Template.chat.getAvatar = function(){
+    var room = Rooms.find().fetch();
+    if(room.length > 0){
+        var username = Meteor.user().username
+        // active room
+        room = room[0];
+        // get other avatar
+        var avatar = _.find(room.avatars, function(item) {
+            return item.username != username;
+        });
+        return avatar[0].avatar || '';
+    }
+    return ''
+}
+
 
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
