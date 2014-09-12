@@ -14,19 +14,20 @@
                             <hr>
                             <h5>Photo</h5>
                             <input type="file" class="select_pic">
-                            <h5>E-mail / Username</h5>
-                            <input class="set_form" id='update-email' value='{{#each currentUser.emails}}{{address}}{{/each}}' required type="email" placeHolder="E-mail">
+                            <h5>Username</h5>
                             <input class="set_form" id='update-username' value='{{currentUser.username}}' required type="text" placeHolder="Username">
-
-                            <hr>
-                            <h5>Password (Optional)</h5>
-                            <input class="set_form" id='new-password' type="password" placeHolder="New password">
-
-                            <hr>
-                            <input required class="set_form" id='current-password' type="password" placeHolder="Current Password">
+                            <h5>Change Secret Key (Optional)</h5>
+                            <input class="set_form" id='new-password' type="password" placeHolder="New Key">
+                            <input required class="set_form" id='current-password' type="password" placeHolder="Current Secret Key">
 
                             <button type="submit">Save</button>
-                            <button id='logoutAction'>Logout</button>
+                            <button id='logoutAction' style="margin-bottom:10px">Logout</button>
+
+                            <span style='color: #000'>
+                            {{#if message}}
+                                {{message}} <a href="#" id='close-message'> (X)</a>
+                            {{/if}}
+                            </span>
                         </form>
                     </div>
 
