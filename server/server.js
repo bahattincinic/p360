@@ -215,6 +215,10 @@ Meteor.publish('sessions', function(userId) {
     return Sessions.find({'userId': userId});
 });
 
+Meteor.publish('rooms', function(roomId){
+    return Rooms.find({'_id': roomId});
+});
+
 Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
         console.log('shuffle changed!');

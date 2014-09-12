@@ -2,6 +2,7 @@ var socket;
 var messageSubs;
 var sessionHandle;
 var observeHandle;
+var roomSub;
 
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -98,12 +99,14 @@ Meteor.startup(function() {
             // and clear roomId
             console.warn('unsub');
             messageSubs.stop();
+            roomSub.stop();
             Session.set('roomId', null);
         } else if (value && roomId){
             // set roomId and subscrive to room messages
             console.warn('sub to ' + roomId);
             Session.set('roomId', roomId);
             messageSubs = Meteor.subscribe('messages', roomId);
+            roomSub = Meteor.subscribe('rooms', roomId);
         }
     });
 

@@ -1,5 +1,5 @@
-body{font-family: Arial,sans-serif; font-weight: bolder; background: #ECECEC;}
-
+@import url(http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic&subset=latin,latin-ext);
+body{font-family: 'Lato', sans-serif; font-weight: bolder; background: #ECECEC;}
 *{ border: none; outline: none;}
 
 .show_hide {display:none;}
@@ -10,7 +10,7 @@ body{font-family: Arial,sans-serif; font-weight: bolder; background: #ECECEC;}
 .img-circle {border-radius: 50%;}
 .img-responsive {display: block; height: auto; max-width: 100%;}
 #img_profile{position: relative;opacity: 0.9;-webkit-opacity: 0.9;-moz-opacity: 0.9;transition: 0.5s ease;-webkit-transition: 0.5s ease;-moz-transition: 0.5s ease;margin-top: 50px;border: px solid;}
-#img_profile:hover{-webkit-transform: scale(1.2);-moz-transform: scale(1.2);opacity: 1;-webkit-opacity: 1;-moz-opacity: 1;}
+#img_profile:hover{-webkit-transform: scale(1.4);-moz-transform: scale(1.4);opacity: 1;-webkit-opacity: 1;-moz-opacity: 1;}
 .col-centered{float: none; margin: 0 auto!important;}
 
 header{height: 60px;width: 100%; position: relative; margin-bottom: 10px;  background: url(../img/black_denim.png) #292929; padding-top: 10px; box-shadow: 0px 0px 3px #000;}
@@ -18,7 +18,7 @@ header .logo{display: block; }
 header .myProfile{display: block; position: absolute;}
 header .myProfilePic{border-radius: 45px;display: inline-block; }
 header .picInner {margin-top: 8px;border-radius: 45px; height: 75px; width: 75px; border: 2px solid #ECECEC; box-shadow: 0px 0px 3px #000;}
-header .myProfileNick{position: relative; display: inline-block; color: #fff; font-size: 18px;}
+header .myProfileNick{position: relative; display: inline-block; color: #fff;font-size: 18px;bottom: 42px;left: 6px;font-size: 20px;}
 header .settings { width: 300px; border: 1px solid rgba(0, 0, 0, 0.15); height:530px; border-radius:2px;   padding:20px;  margin-top:10px;  position: relative;  z-index: 9999; background: rgba(255,255,255,0.95);}
 header .settings button {display: block;font-size: 18px;font-weight: 100;position: relative;background: crimson;border: 1px solid crimson;color: #F2F1EF;border-radius: 1px;width: 100%;height: 35px;float: right;margin-top: 7px;}
 header .settings input.set_form{width: 100%;height: 30px;text-indent: 10px;margin: 5px 0;border-radius: 5px;border: 1px solid ;border-color: rgba(0,0,0,0.4);font-weight: lighter;color:#000;}
@@ -31,9 +31,10 @@ header .select_pic:hover::before {border-color: black;}
 header .select_pic:active { outline: 0;}
 header .select_pic:active::before {background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);}
 
-.anonimName{font-size: 28px;}
-.seconds{font-size:28px; color: crimson}
-.seconds > strong{font-size: 24px; color: black; }
+.anonimName{font-size: 28px; color:#373737;}
+.searching_text{font-size: 32px;}
+.seconds{font-size:28px; color: crimson; margin-top: 10px;}
+.seconds > strong{font-size: 24px; color: #373737; }
 
 input#input360{width: 100%; border: 1px solid rgba(0, 0, 0, 0.15);outline: none; margin: 10px 0; font-weight: lighter; font-size: 16px; font-family: Arial,sans-serif; text-indent: 15px; height: 50px;}
 input#input360:focus{border: 1px solid rgba(0, 0, 0, 0.2);}
@@ -55,18 +56,20 @@ input#input360:focus{border: 1px solid rgba(0, 0, 0, 0.2);}
 .sign .submit{display: block; font-size: 18px; font-weight: 100; position: relative; background: crimson; border:1px solid crimson; color: #F2F1EF; border-radius: 1px;width: 100%;height: 35px; float: right; margin-top: 7px;}
 
 
-.chat_status{font-weight: 100; margin-top: 20px;  position: relative; display: block; font-size: 16px; float: left;}
+.chat_status{font-weight: 100;  position: relative; display: block; font-size: 16px; float: left;}
 .chat_status ul{margin:0; padding:0; }
-.chat_status ul li{float: left; width: 40px; height: 40px; background: url(../img/icons/icons.png); background-repeat: no-repeat; list-style: none; margin-right:10px;}
-.chat_status ul li a{width: 40px; height: 40px; display: block; position: relative;}
-.chat_status ul li.online{background-position: 0px 0px;}
-.chat_status ul li.offline{background-position: -40px 0px;}
-.chat_status ul li.typing{background-position: -80px 0px;}
-.chat_status ul li.hey{background-position: -120px 0px;}
+.chat_status ul li{float: left; width: 50px; height: 50px;background: url(../img/icons.png) ; background-repeat: no-repeat; list-style: none; margin-right:10px; border-radius: 30px; box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.35);}
+.chat_status ul li a{width: 50px; height: 50px; display: block; position: relative;}
+.chat_status ul li.online{background:#54c441; box-shadow: none;}
+.chat_status ul li.offline{background:crimson; box-shadow: none;}
+.chat_status ul li.typing{background: none; line-height: 70px; box-shadow: none; color:#373737!important;}
+.chat_status ul li.typing i{color: #424242!important;font-size: 20px;font-weight: 300;}
+.chat_status ul li.hey{background-position: -150px 0px;}
 .chat_status ul li.hey b{margin-left: 25px; background: crimson; color: #fff; border-radius: 10px; bottom: 0; position: absolute; font-weight: bold; padding: 2px 7px;font-size: 12px;}
-.chat_status ul li.block{background-position: -160px 0px;}
-.chat_status ul li.sound_on{background-position: -200px 0px;}
-.chat_status ul li.sound_off{background-position: -240px 0px;}
+.chat_status ul li.block{background-position: -100px 0px;}
+.chat_status ul li.non_block{background-position: -200px 0px;}
+.chat_status ul li.sound_off{background-position: 0px 0px;}
+.chat_status ul li.sound_on{background-position: -50px 0px;}
 
 @-webkit-keyframes rotating {
     from{
