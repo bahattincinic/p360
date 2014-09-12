@@ -90,7 +90,7 @@ Template.chat.isSearching = function(){
     return Session.get('searching');
 };
 
-Template.chat.message = function(){
+Template.chat.infoMessage = function(){
     return Session.get('update_message') || '';
 }
 
