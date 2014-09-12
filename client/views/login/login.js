@@ -1,24 +1,38 @@
 Template.login.events({
     'submit #login-form': function(e, t) {
         e.preventDefault();
-        var username = t.find('#login-username').value,
-            password = t.find('#login-password').value;
-        Meteor.loginWithPassword(username, password, function(err) {});
+        username = t.find('#account-username').value;
+        secret = t.find('#account-secret').value;
+        Meteor.loginWithPassword(username, secret, function(error) {
+            if(!error){
+                // login
+                return false;
+            }
+            // check password
+            Meteor.call('checkUsername', username, function(err, result){
+                if(result){
+                    Session.set('message', 'username is being used / username or passord invalid');
+                    t.find('#account-username').value = '';
+                    t.find('#account-secret').value = '';
+                }else{
+                    // register
+                    Accounts.createUser({
+                    password: secret,
+                    username: username
+                }, function(err) {});
+                }
+            });
+        });
         return false;
     },
-    'submit #register-form': function(e, t) {
-        e.preventDefault();
-        var email = t.find('#account-email').value,
-            password = t.find('#account-password').value,
-            username = t.find('#account-username').value;
-        Accounts.createUser({
-            email: email,
-            password: password,
-            username: username
-        }, function(err) {});
-        return false;
+    'click #close-message': function(e, t){
+        Session.set('message', '');
     }
 });
+
+Template.login.message = function(){
+    return Session.get('message') || '';
+}
 
 Template.login.rendered = function() {
       $.backstretch([

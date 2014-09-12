@@ -12,6 +12,12 @@ Meteor.methods({
             return false;
         }
     },
+    checkUsername: function(username){
+        var user = Meteor.users.findOne({username: username});
+        // true: exists
+        // false: not exists
+        return user? true: false;
+    },
     // TODO: move this into Meteor.socket()
     findSocket: function(socketId) {
 
