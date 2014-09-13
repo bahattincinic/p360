@@ -30,11 +30,11 @@ Template.chat.events({
     'submit #changeForm': function(e, form){
         e.preventDefault();
         var username =  form.find('#update-username').value;
-        var password = Package.sha.SHA256(form.find('#current-password').value);
         var new_password = form.find('#new-password').value;
-        Meteor.call('checkPassword', password, function(err, result) {
-            // password matched
-            if (result) {
+        Meteor.call('checkUsername', username, function(err, result){
+            if(result && Meteor.user().username != username){
+                Session.set('update_message', 'username already in exists');
+            }else{
                 Meteor.users.update(
                     { '_id': Meteor.userId() },
                     { $set: { 'username': username} }
@@ -44,9 +44,6 @@ Template.chat.events({
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
                 Session.set('update_message', 'Profile has been updated');
-            }else{
-                Session.set('update_message', 'Secket Key Invalid');
-                form.find('#current-password').value = '';
             }
         });
     },
