@@ -97,19 +97,18 @@ Template.chat.infoMessage = function(){
 };
 
 Template.chat.getAvatar = function(){
-    // var room = Rooms.find().fetch();
-    // if(room.length > 0){
-    //     var username = Meteor.user().username
-    //     // active room
-    //     room = room[0];
-    //     // get other avatar
-    //     var avatar = _.find(room.avatars, function(item) {
-    //         return item.username != username;
-    //     });
-    //     console.log(avatar);
+    var room = Rooms.find().fetch();
+    if(room.length > 0){
+        var username = Meteor.user().username
+        // active room
+        room = room[0];
+        // get other avatar
+        var other = _.find(room.avatars, function(item) {
+            return item.username != username;
+        });
 
-    //     return avatar[0].avatar || '';
-    // }
+        return other.avatar || '';
+    }
     return '';
 };
 
