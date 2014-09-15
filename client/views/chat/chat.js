@@ -42,7 +42,7 @@ Template.chat.events({
         var new_password = form.find('#new-password').value;
         Meteor.call('checkUsername', username, function(err, result){
             if(result && Meteor.user().username != username){
-                Session.set('update_message', 'username already in exists');
+                Session.set('updateMessage', 'username already in exists');
             }else{
                 Meteor.users.update(
                     { '_id': Meteor.userId() },
