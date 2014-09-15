@@ -125,11 +125,6 @@ Template.chat.getAvatar = function(){
 
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
-
-    socket.on('typing', function(value) {
-        Session.set('typing', value);
-    });
-
     Meteor.subscribe('users');
 
     Meteor.autorun(function() {
@@ -140,11 +135,13 @@ Meteor.startup(function() {
                 added: function (document) {
                     Session.set('talking', document.talking);
                     Session.set('searching', document.searching);
+                    Session.set('typing', document.typing);
                 },
                 changed: function (newDocument, oldDocument) {
                     // set basic states
                     Session.set('talking', newDocument.talking);
                     Session.set('searching', newDocument.searching);
+                    Session.set('typing', newDocument.typing);
                     // if session has room then subscribe to id
                     if (newDocument.room) {
                         messageSubs = Meteor.subscribe('messages', newDocument.room);
@@ -156,6 +153,7 @@ Meteor.startup(function() {
                         if (roomSub) roomSub.stop();
                         Session.set('roomId', null);
                     }
+
                     console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
                 }
             });

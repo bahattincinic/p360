@@ -107,6 +107,7 @@ function Staple() {
         Sessions.update(
             {'_id': session._id},
             {$pull: {'sockets': socket.id}, $inc: {'socketCount': -1}});
+
         // refresh session
         session = Sessions.findOne({'_id': session._id});
 
@@ -117,7 +118,7 @@ function Staple() {
         }
 
         Sessions.update({'_id': session._id},
-            {$set: {'talking': false, 'searching': false}});
+            {$set: {'talking': false, 'searching': false, 'typing': false}});
 
         // if disconnecting user is somehow in shuffle remove her
         if (Shuffle.findOne({'name': shuffleName})) {
@@ -153,16 +154,12 @@ function Staple() {
                 {$set: {
                     'talking': false,
                     'searching': true,
+                    'typing': false,
                     'room': null
                 }}
             );
 
             var otherSession = Sessions.findOne({'_id': otherSessionId});
-//            // in here var xxx is socket id
-//            _.each(otherSession.sockets, function(xxx) {
-//                var retract = self.findOne(xxx);
-//                retract.socket.leave(room._id);
-//            });
 
             // add other party to shuffle list
             Shuffle.update({'name': shuffleName},

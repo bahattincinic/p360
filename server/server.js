@@ -55,6 +55,7 @@ Meteor.startup(function() {
                         'room': null,
                         'talking': false,
                         'searching': false,
+                        'typing': false,
                         'socketCount': 1
                     });
                 } else {
@@ -119,12 +120,7 @@ Meteor.startup(function() {
                             'searching': true
                         }});
 
-//                    // make all sockets leave the room
                     var inner = Sessions.findOne({'_id': session});
-//                    _.each(inner.sockets, function(sId) {
-//                        var needle = Meteor.sockets.findOne(sId);
-//                        needle.socket.leave(room._id);
-//                    })
 
                     // add user to shuffle
                     Shuffle.update({'name': shuffleName},
@@ -151,7 +147,10 @@ Meteor.startup(function() {
                     throw Meteor.Error(500, 'remaining');
                 }
 
-                var toSession = Sessions.findOne({'_id': remaining[0]});
+                var toSessionId = remaining[0];
+                var toSession = Sessions.findOne({'_id': toSessionId});
+                // mark as not typing
+                Sessions.update({'_id': toSessionId}, {$set: {'typing': false}});
 
                 var from = Meteor.users.findOne({'_id': session.userId}).username;
                 var to = Meteor.users.findOne({'_id': toSession.userId}).username;
@@ -183,11 +182,8 @@ Meteor.startup(function() {
                 if (remaining.length != 1) {
                     throw Meteor.Error(500, 'remaining');
                 }
-
-                var toSession = Sessions.findOne({'_id': remaining[0]});
-                _.each(toSession.sockets, function(otherSocket) {
-                    Meteor.sockets.findOne(otherSocket).socket.emit('typing', value);
-                });
+                var toSessionId = remaining[0];
+                Sessions.update({'_id': toSessionId}, {$set: {'typing': value}});
             }).run();
         });
     });
@@ -308,14 +304,6 @@ Shuffle.find({'name': shuffleName}).observe({
                         'searching': false,
                         'room': roomId
                     }});
-
-//                _.each(s.sockets, function(socketId) {
-//                    var needle = Meteor.sockets.findOne(socketId);
-//                    if (!needle)
-//                        throw new Meteor.Error(500, 'no needle here');
-//
-//                    needle.socket.join(roomId);
-//                });
             });
 
             // after all ops remove these guys from shuffle
