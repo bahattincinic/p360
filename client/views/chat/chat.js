@@ -3,6 +3,7 @@ var messageSubs;
 var sessionHandle;
 var observeHandle;
 var roomSub;
+var messageObserveHandle;
 
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -122,7 +123,6 @@ Template.chat.getAvatar = function(){
     return '';
 };
 
-
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     Meteor.subscribe('users');
@@ -149,14 +149,23 @@ Meteor.startup(function() {
                         Session.set('roomId', newDocument.room);
                     } else {
                         // no room, stop all subscriptions
+                        if (messageObserveHandle) messageObserveHandle.stop();
                         if (messageSubs) messageSubs.stop();
                         if (roomSub) roomSub.stop();
                         Session.set('roomId', null);
                     }
 
-                    console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
+                    // console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
                 }
             });
+
+            if (Session.get('roomId')) {
+                messageObserveHandle = Messages.find({'roomId': Session.get('roomId')}).observe({
+                    added: function(document) {
+                        console.log('new message added');
+                    }
+                });
+            }
         } else {
             if (sessionHandle) {
                 console.log('stop subscriptions....');
