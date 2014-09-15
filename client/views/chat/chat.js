@@ -159,9 +159,9 @@ Meteor.startup(function() {
             });
         } else {
             if (sessionHandle) {
-                console.log('stop sessions/....');
-                sessionHandle.stop();
-                observeHandle.stop();
+                console.log('stop subscriptions....');
+                if (sessionHandle) sessionHandle.stop();
+                if (observeHandle) observeHandle.stop();
             }
         }
     });

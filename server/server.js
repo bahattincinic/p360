@@ -30,12 +30,10 @@ Meteor.startup(function() {
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
         console.log('connection socket with id: ' + socket.id);
-        Meteor.sockets.insert(socket);
 
         socket.on('disconnect', function() {
             Fiber(function() {
                 console.log('disconnected: ' + socket.id);
-                Meteor.sockets.remove(socket);
                 Meteor.sockets.disconnect(socket);
             }).run();
         });
@@ -226,11 +224,6 @@ Meteor.startup(function() {
             _.each(shuffle, function(a) {
                 console.log(a);
             });
-            console.log('-------------------------------');
-        },
-        p: function() {
-            console.log('Sockets: ');
-            Meteor.sockets.show();
             console.log('-------------------------------');
         }
     });

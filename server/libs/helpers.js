@@ -65,37 +65,6 @@ function Staple() {
     arguments.callee._singletonInstance = this;
     var self = this;
 
-    self._pile = [];     // _pile of sockets, for socket bookkeeping
-    self.resetPile = function() { // reset all _pile XXX remove at prod
-        self._pile.length = 0;
-    };
-    self.show = function() { // for debugging purposes only XXX to be removed
-        console.log('total: ' + self._pile.length);
-        _.each(self._pile, function(a) {
-            console.log(a._id);
-        });
-    };
-    self.insert = function(socket) { // add a new socket to _pile
-        return self._pile.push({'_id': socket.id, 'socket': socket});
-    };
-    self.findOne = function(socketId) {
-        var retract = _.find(self._pile, function(item) {
-            return item._id == socketId;
-        });
-
-        if (!retract)
-            return null;
-        return retract;
-    };
-    self.remove = function(socket) {
-        var retract = self.findOne(socket.id);
-        if (!retract)
-            return false
-
-        var index = self._pile.indexOf(retract);
-        self._pile.splice(index, 1);
-        return true;
-    };
     self.disconnect = function(socket) {
         var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
         if (!session) {
@@ -140,7 +109,6 @@ function Staple() {
             Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
 
             // take care of first guy
-//            socket.leave(room._id);
             Sessions.update({'_id': session._id}, {$set: {'room': null}});
 
             // get other guy
