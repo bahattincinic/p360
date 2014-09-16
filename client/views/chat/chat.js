@@ -9,6 +9,7 @@ Session.setDefault('talking', false);
 Session.setDefault('searching', false);
 Session.setDefault('updateMessage', '');
 Session.setDefault('typing', false);
+Session.setDefault('sound', false);
 
 Template.chat.events({
     'click #show_hide': function(e, t){
@@ -136,12 +137,15 @@ Meteor.startup(function() {
                     Session.set('talking', document.talking);
                     Session.set('searching', document.searching);
                     Session.set('typing', document.typing);
+                    Session.set('sound', document.sound);
                 },
                 changed: function (newDocument, oldDocument) {
                     // set basic states
                     Session.set('talking', newDocument.talking);
                     Session.set('searching', newDocument.searching);
                     Session.set('typing', newDocument.typing);
+                    Session.set('sound', newDocument.sound);
+
                     // if session has room then subscribe to id
                     if (newDocument.room) {
                         messageSubs = Meteor.subscribe('messages', newDocument.room);
@@ -154,13 +158,11 @@ Meteor.startup(function() {
                         if (roomSub) roomSub.stop();
                         Session.set('roomId', null);
                     }
-
-                    // console.log('n/o: ' + newDocument.talking + '/' + oldDocument.talking);
                 }
             });
 
-            if (Session.get('roomId')) {
-                messageObserveHandle = Messages.find({'roomId': Session.get('roomId')}).observe({
+            if (Session.get('roomId') && Session.get('sound')) {
+                messageObserveHandle = Messages.find({'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
                     added: function(document) {
                         console.log('new message added');
                     }

@@ -17,16 +17,20 @@ Messages.allow({
 
 Sessions.allow({
     insert: function (userId, doc) {
-        return true;
+        return false;
     },
     update: function (userId, doc, fields, modifier) {
-        // return doc.owner === userId;
+        console.log(doc);
+        console.log(modifier);
+        console.log(userId);
+        console.log(fields);
         return true;
     },
     remove: function (userId, doc) {
         // return doc.owner === userId;
-        return true;
-    }
+        return false;
+    },
+    fetch: ['sound']
 });
 
 

@@ -54,6 +54,7 @@ Meteor.startup(function() {
                         'talking': false,
                         'searching': false,
                         'typing': false,
+                        'sound': true,
                         'socketCount': 1
                     });
                 } else {
