@@ -71,7 +71,16 @@
             </div>
                 <div class="chat_status">
                     <ul>
-                        <li class="sound_off"><a href="#"  title="Mute"></a></li>
+                        {{#if isSound }}
+                            <li class="sound_off" id='changeSound'>
+                                <a href="#" title="Mute"></a>
+                            </li>
+                        {{ else }}
+                            <li class="sound_off sound_on" id='changeSound'>
+                                <a href="#" title="Mute"></a>
+                            </li>
+                        {{/if}}
+
                         {{#if isTyping }}
                             <li class="typing"><i title="Typing...">typing...</i></li>
                         {{/if}}

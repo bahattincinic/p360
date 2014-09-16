@@ -185,6 +185,19 @@ Meteor.startup(function() {
                 Sessions.update({'_id': toSessionId}, {$set: {'typing': value}});
             }).run();
         });
+
+        socket.on('sound', function(newSound){
+            Fiber(function() {
+                var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
+                if(!session){
+                    throw Meteor.Error(500, 'unable to find session');
+                }
+                Sessions.update({'_id': session._id}, {$set: {
+                    sound: newSound
+                }});
+            }).run();
+        });
+
     });
 
     // TODO: for debugging only, must be removed at production

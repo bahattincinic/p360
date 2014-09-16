@@ -20,17 +20,12 @@ Sessions.allow({
         return false;
     },
     update: function (userId, doc, fields, modifier) {
-        console.log(doc);
-        console.log(modifier);
-        console.log(userId);
-        console.log(fields);
-        return true;
+        return false;
     },
     remove: function (userId, doc) {
         // return doc.owner === userId;
         return false;
-    },
-    fetch: ['sound']
+    }
 });
 
 

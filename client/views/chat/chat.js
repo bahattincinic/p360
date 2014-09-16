@@ -33,9 +33,11 @@ Template.chat.events({
     },
     'submit #form360': function(e, form) {
         e.preventDefault();
-        var body = form.find('input[id=input360]').value;
-        socket.emit('message', body);
-        $('input[id=input360]').val('');
+        var body = $.trim(form.find('input[id=input360]').value);
+        if(body){
+            socket.emit('message', body);
+            $('input[id=input360]').val('');
+        }
     },
     'submit #changeForm': function(e, form){
         e.preventDefault();
@@ -80,6 +82,10 @@ Template.chat.events({
     'click #don': function() {
         if (Session.get('talking')) return;
         Meteor.call('stopSearching', Meteor.user()._id);
+    },
+    'click #changeSound': function(){
+        var newSound = !Session.get('sound');
+        socket.emit('sound', newSound);
     }
 });
 
@@ -94,6 +100,10 @@ Template.chat.messages = function() {
 
 Template.chat.isTalking = function() {
     return Session.get('talking');
+};
+
+Template.chat.isSound = function() {
+    return Session.get('sound');
 };
 
 Template.chat.isSearching = function(){
@@ -161,10 +171,10 @@ Meteor.startup(function() {
                 }
             });
 
-            if (Session.get('roomId') && Session.get('sound')) {
+            if (Session.get('roomId') && Session.get('sound')){
                 messageObserveHandle = Messages.find({'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
                     added: function(document) {
-                        console.log('new message added');
+                        $('#soundNot')[0].play();
                     }
                 });
             }
