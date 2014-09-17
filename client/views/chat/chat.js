@@ -134,6 +134,10 @@ Template.chat.getAvatar = function(){
     return '';
 };
 
+Template.message.hasOwner = function(from){
+    return Meteor.user().username == from;
+}
+
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     Meteor.subscribe('users');

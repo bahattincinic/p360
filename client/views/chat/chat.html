@@ -87,21 +87,25 @@
                     </ul>
                 </div>
                 <form id='form360'>
-                    <input type="text" id="input360" placeHolder="Please...">
+                    <input type="text" id="input360" placeHolder="Type your message here...">
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <table id="messagemessage">
-                    <tbody>
-                        {{#each messages}}
-                            {{>message}}
-                        {{/each}}
-                    </tbody>
-                </table>
+
+        <div class="row" style="background-color:#fff; padding:10px; margin-left: 3px; width: 100%; margin-bottom:25px">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-body">
+                        <ul class="chat">
+                            {{#each messages}}
+                                {{>message}}
+                            {{/each}}
+                            </ul>
+                        </div>
+                    </div>
             </div>
         </div>
+
     </div>
     {{ else }}
         {{#if isSearching }}
@@ -135,7 +139,31 @@
 </template>
 
 <template name="message">
-    <tr>
-        <td><b class="unick">{{from}}: </b>{{body}}</td>
-    </tr>
+    {{#if hasOwner from}}
+        <li class="left clearfix">
+            <span class="chat-img pull-left">
+                <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+            </span>
+            <div class="chat-body clearfix">
+                <div class="header">
+                    <strong class="primary-font">{{ from }}</strong> <small class="pull-right text-muted">
+                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                </div>
+                <p>{{body}}</p>
+            </div>
+        </li>
+    {{else }}
+        <li class="right clearfix">
+            <span class="chat-img pull-right">
+                <img src="http://placehold.it/50/55C1E7/fff&text=ANON" alt="User Avatar" class="img-circle" />
+            </span>
+            <div class="chat-body clearfix">
+                <div class="header">
+                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                    <strong class="pull-right primary-font">{{ from }}</strong>
+                </div>
+                <p>{{body}}</p>
+            </div>
+        </li>
+    {{/if}}
 </template>
