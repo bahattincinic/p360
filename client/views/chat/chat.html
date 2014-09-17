@@ -27,8 +27,8 @@
                             <button id='logoutAction' style="margin-bottom:10px">Logout</button>
 
                             <span style='color: #000'>
-                            {{#if infoMessage}}
-                                {{infoMessage}} <a href="#" id='close-message'> (X)</a>
+                            {{#if session "updateMessage"}}
+                                {{ session "updateMessage" }} <a href="#" id='close-message'> (X)</a>
                             {{/if}}
                             </span>
                         </form>
@@ -42,7 +42,7 @@
             </div>
         </div>
     </header>
-    {{#if isTalking}}
+    {{#if session "talking"}}
 
     <div class="container">
         <div class="row ">
@@ -71,7 +71,7 @@
             </div>
                 <div class="chat_status">
                     <ul>
-                        {{#if isSound }}
+                        {{#if session "sound" }}
                             <li class="sound_off" id='changeSound'>
                                 <a href="#" title="Mute"></a>
                             </li>
@@ -81,7 +81,7 @@
                             </li>
                         {{/if}}
 
-                        {{#if isTyping }}
+                        {{#if session "typing" }}
                             <li class="typing"><i title="Typing...">typing...</i></li>
                         {{/if}}
                     </ul>
@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <div class="row" style="background-color:#fff; padding:10px; margin-left: 3px; width: 100%; margin-bottom:25px">
+        <div class="row" style="background-color:#fff; padding:10px; margin-left: 3px; width: 100%; margin-bottom:25px; border: 1px solid rgba(0, 0, 0, 0.15);">
             <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-body">
@@ -108,7 +108,7 @@
 
     </div>
     {{ else }}
-        {{#if isSearching }}
+        {{#if session "searching" }}
             <div class="container">
                 <div class="row ">
                     <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-centered">

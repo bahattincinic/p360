@@ -98,37 +98,12 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
-Template.chat.isTalking = function() {
-    return Session.get('talking');
-};
-
-Template.chat.isSound = function() {
-    return Session.get('sound');
-};
-
-Template.chat.isSearching = function(){
-    return Session.get('searching');
-};
-
-Template.chat.infoMessage = function(){
-    return Session.get('updateMessage');
-};
-
-Template.chat.isTyping = function() {
-    return Session.get('typing');
-}
-
 Template.chat.getAvatar = function(){
     var room = Rooms.find().fetch();
     if(room.length > 0){
-        var username = Meteor.user().username
-        // active room
-        room = room[0];
-        // get other avatar
-        var other = _.find(room.avatars, function(item) {
-            return item.username != username;
+        var other = _.find(room[0].avatars, function(item) {
+            return item.username != Meteor.user().username;
         });
-
         return other.avatar || '';
     }
     return '';
@@ -137,6 +112,10 @@ Template.chat.getAvatar = function(){
 Template.message.hasOwner = function(from){
     return Meteor.user().username == from;
 }
+
+Handlebars.registerHelper('session',function(input){
+    return Session.get(input);
+});
 
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
