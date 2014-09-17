@@ -262,7 +262,6 @@ Meteor.publish('rooms', function(roomId) {
 
 Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
-        console.log('changed event..');
         var shuffle = Shuffle.findOne({'name': shuffleName});
         if (!shuffle) throw new Meteor.Error(500, 'Shuffle not found!');
 
