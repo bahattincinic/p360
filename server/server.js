@@ -256,12 +256,13 @@ Meteor.publish('sessions', function(userId) {
     return Sessions.find({'userId': userId});
 });
 
-Meteor.publish('rooms', function(roomId){
+Meteor.publish('rooms', function(roomId) {
     return Rooms.find({'_id': roomId});
 });
 
 Shuffle.find({'name': shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
+        console.log('changed event..');
         var shuffle = Shuffle.findOne({'name': shuffleName});
         if (!shuffle) throw new Meteor.Error(500, 'Shuffle not found!');
 
@@ -309,8 +310,7 @@ Shuffle.find({'name': shuffleName}).observe({
                     {$set: {
                         'talking': true,
                         'searching': false,
-                        'room': roomId
-                    }});
+                        'room': roomId}});
             });
 
             // after all ops remove these guys from shuffle

@@ -4,12 +4,16 @@ var sessionHandle;
 var observeHandle;
 var roomSub;
 var messageObserveHandle;
-
+var roomObserveHandle;
+var interval;
+// session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
 Session.setDefault('updateMessage', '');
 Session.setDefault('typing', false);
 Session.setDefault('sound', false);
+Session.setDefault('expirationDate', null);
+
 
 Template.chat.events({
     'click #show_hide': function(e, t){
@@ -111,10 +115,67 @@ Template.chat.getAvatar = function(){
 
 Template.message.hasOwner = function(from){
     return Meteor.user().username == from;
-}
+};
+
+Template.chat.timeLeft = function() {
+    return Session.get('expirationDate') - Session.get('now');
+};
 
 Handlebars.registerHelper('session',function(input){
     return Session.get(input);
+});
+
+Meteor.autorun(function() {
+    if (Session.get('expirationDate')) {
+        interval = Meteor.setInterval(function(){
+            Session.set('now', Math.floor(new Date().getTime() / 1000));
+        }, 1000);
+    } else {
+        Meteor.clearInterval(interval);
+    }
+});
+
+// room autorun
+Meteor.autorun(function() {
+    if (Session.get('roomId')) {
+        // sub to this room messages
+        messageSubs = Meteor.subscribe('messages', Session.get('roomId'));
+        // sub to this room
+        roomSub = Meteor.subscribe('rooms', Session.get('roomId'));
+
+        roomObserveHandle = Rooms.find({'_id': Session.get('roomId')}).observe({
+            added: function(newDocument) {
+                console.log('add room: ' + newDocument.isActive);
+                var seconds = Math.floor(new Date().getTime() / 1000) + 360;
+                Session.set('expirationDate', seconds);
+            },
+            removed: function(oldDocument) {
+                console.log('removed room');
+            }
+        });
+    } else {
+        // no room, stop all subscriptions
+        console.log('no room in session');
+        if (roomObserveHandle) roomObserveHandle.stop();
+        if (messageSubs) messageSubs.stop();
+        if (roomSub) roomSub.stop();
+        Session.set('expirationDate', null);
+    }
+});
+
+// sound autorun
+Meteor.autorun(function() {
+    if (Meteor.user() && Session.get('sound') && Session.get('roomId')) {
+        messageObserveHandle = Messages.find(
+            {'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
+            added: function(document) {
+                $('#soundNot')[0].play();
+            }
+        });
+    } else {
+        // no longer in need of this observe
+        if (messageObserveHandle) messageObserveHandle.stop();
+    }
 });
 
 Meteor.startup(function() {
@@ -141,32 +202,29 @@ Meteor.startup(function() {
 
                     // if session has room then subscribe to id
                     if (newDocument.room) {
-                        messageSubs = Meteor.subscribe('messages', newDocument.room);
-                        roomSub = Meteor.subscribe('rooms', newDocument.room);
                         Session.set('roomId', newDocument.room);
                     } else {
-                        // no room, stop all subscriptions
-                        if (messageObserveHandle) messageObserveHandle.stop();
-                        if (messageSubs) messageSubs.stop();
-                        if (roomSub) roomSub.stop();
                         Session.set('roomId', null);
                     }
                 }
             });
-
-            if (Session.get('roomId') && Session.get('sound')){
-                messageObserveHandle = Messages.find({'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
-                    added: function(document) {
-                        $('#soundNot')[0].play();
-                    }
-                });
-            }
         } else {
-            if (sessionHandle) {
-                console.log('stop subscriptions....');
-                if (sessionHandle) sessionHandle.stop();
-                if (observeHandle) observeHandle.stop();
-            }
+            console.log('stop subscriptions....');
+            // since user logged out, we no longer need any of these subs
+            if (sessionHandle) sessionHandle.stop();
+            if (observeHandle) observeHandle.stop();
+            if (roomObserveHandle) roomObserveHandle.stop();
+            if (messageObserveHandle) messageObserveHandle.stop();
+            if (messageSubs) messageSubs.stop();
+            if (roomSub) roomSub.stop();
+            // reset all Session data
+            Session.set('talking', false);
+            Session.set('searching', false);
+            Session.set('typing', false);
+            Session.set('sound', false);
+            Session.set('roomId', null);
+            Session.set('updateMessage', '');
+            Session.set('expirationDate', null);
         }
     });
 });
