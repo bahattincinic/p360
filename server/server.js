@@ -81,7 +81,8 @@ Meteor.startup(function() {
                 }
 
                 // XXX remove before prod
-				var __rooms = Rooms.find({'sessions': {$in: [session._id]}, 'isActive': true}).fetch();
+				var __rooms = Rooms.find(
+                    {'sessions': {$in: [session._id]}, 'isActive': true}).fetch();
 				Meteor.assert(__rooms.length == 1,
 				    'there should only one active room for this session');
 				var __recorded_room = Rooms.find({'_id': session.room, 'isActive': true}).fetch();

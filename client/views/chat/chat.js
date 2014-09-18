@@ -49,13 +49,13 @@ Template.chat.events({
         var new_password = form.find('#new-password').value;
         Meteor.call('checkUsername', username, function(err, result){
             if(result && Meteor.user().username != username){
-                Session.set('updateMessage', 'username already in exists');
+                Session.set('updateMessage', 'username already exists');
             }else{
                 Meteor.users.update(
                     { '_id': Meteor.userId() },
                     { $set: { 'username': username} }
                 );
-                // change new_passwordd
+                // change new_password
                 if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
@@ -102,7 +102,7 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
-Template.chat.getAvatar = function(){
+Template.chat.getAvatar = function() {
     // TODO: burada other yok!
     // var room = Rooms.find().fetch();
     // if(room.length > 0){
@@ -182,7 +182,7 @@ Meteor.autorun(function() {
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     Meteor.subscribe('users');
-
+    // user autorun
     Meteor.autorun(function() {
         if (Meteor.user()) {
             socket.emit('loggedIn', Meteor.user()._id);
