@@ -118,6 +118,14 @@ Template.message.hasOwner = function(from){
     return Meteor.user().username == from;
 };
 
+Template.message.dateFormat = function(date){
+    var time = new Date();
+    time.setTime(date);
+    var hour = time.getHours() > 9? time.getHours(): '0' + time.getHours();
+    var minute = time.getMinutes() > 9? time.getMinutes(): '0' + time.getMinutes();
+    return hour + ':' + minute;
+}
+
 Template.chat.timeLeft = function() {
     return Session.get('expirationDate') - Session.get('now');
 };
