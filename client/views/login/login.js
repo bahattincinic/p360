@@ -18,9 +18,7 @@ Template.login.events({
                     // register
                     Accounts.createUser({
                         password: secret,
-                        username: username,
-                        avatarId: '',
-                        osman: 12
+                        username: username
                     }, function(err, res) {
                         if (err) throw err;
                     });
