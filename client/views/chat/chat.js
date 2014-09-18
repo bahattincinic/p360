@@ -68,13 +68,11 @@ Template.chat.events({
         Session.set('updateMessage', '');
     },
     'click #next': function(e, t) {
-        console.log('clicked next');
+
         // can leave only when talking
         if (Session.get('talking')) {
             socket.emit('leave');
             $('#next').toggleClass("yanyan");
-        } else {
-            console.warn('leave has no effect');
         }
     },
     // starts searching for a room
@@ -118,18 +116,6 @@ Template.message.hasOwner = function(from){
     return Meteor.user().username == from;
 };
 
-Template.message.dateFormat = function(date){
-    // TODO: we need indicators like "xx min ago", "just now", "yesterday"
-    // not just straight hour:minute time indicator.
-    // server time will be different than users time!!
-    // use momentjs here
-    var time = new Date();
-    time.setTime(date);
-    var hour = time.getHours() > 9 ? time.getHours(): '0' + time.getHours();
-    var minute = time.getMinutes() > 9 ? time.getMinutes(): '0' + time.getMinutes();
-    return hour + ':' + minute;
-}
-
 Template.chat.timeLeft = function() {
     return Session.get('expirationDate') - Session.get('now');
 };
@@ -140,7 +126,7 @@ Handlebars.registerHelper('session',function(input){
 
 Meteor.autorun(function() {
     if (Session.get('expirationDate')) {
-        interval = Meteor.setInterval(function(){
+        interval = Meteor.setInterval(function() {
             Session.set('now', Math.floor(new Date().getTime() / 1000));
         }, 1000);
     } else {
@@ -158,17 +144,12 @@ Meteor.autorun(function() {
 
         roomObserveHandle = Rooms.find({'_id': Session.get('roomId')}).observe({
             added: function(newDocument) {
-                console.log('add room: ' + newDocument.isActive);
-                var seconds = Math.floor(new Date().getTime() / 1000) + 360;
+                var seconds = Math.floor(new Date().getTime() / 1000) + Settings.xx;
                 Session.set('expirationDate', seconds);
-            },
-            removed: function(oldDocument) {
-                console.log('removed room');
             }
         });
     } else {
         // no room, stop all subscriptions
-        console.log('no room in session');
         if (roomObserveHandle) roomObserveHandle.stop();
         if (messageSubs) messageSubs.stop();
         if (roomSub) roomSub.stop();
@@ -222,7 +203,6 @@ Meteor.startup(function() {
                 }
             });
         } else {
-            console.log('stop subscriptions....');
             // since user logged out, we no longer need any of these subs
             if (sessionHandle) sessionHandle.stop();
             if (observeHandle) observeHandle.stop();

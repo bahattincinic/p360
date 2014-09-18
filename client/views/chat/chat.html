@@ -64,7 +64,7 @@
 
             <div class="seconds pull-right">
                 <span class="second">
-                    {{#if timeLeft }}{{ timeLeft }}{{ else }}360{{/if}}
+                    {{#if timeLeft }}{{ timeLeft }}{{ else }}   ∭  {{/if}}
                 </span>
                 <strong id="string_seconds">seconds</strong>
             </div>
@@ -148,8 +148,7 @@
             </span>
             <div class="chat-body clearfix">
                 <div class="header">
-                    <strong class="primary-font">{{ from }}</strong> <small class="pull-right text-muted">
-                        <span class="glyphicon glyphicon-time"></span>{{ dateFormat createdAt }}</small>
+                    <strong class="primary-font">{{ from }}</strong>
                 </div>
                 <p>{{body}}</p>
             </div>
@@ -161,7 +160,6 @@
             </span>
             <div class="chat-body clearfix">
                 <div class="header">
-                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{ dateFormat createdAt }}</small>
                     <strong class="pull-right primary-font">{{ from }}</strong>
                 </div>
                 <p>{{body}}</p>
