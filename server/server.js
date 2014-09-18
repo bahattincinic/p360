@@ -215,6 +215,14 @@ Meteor.startup(function() {
                 console.log(a);
             });
             console.log('-------------------------------');
+        },
+        lu: function() {
+            console.log('Users: ');
+            var users = Meteor.users.find({}).fetch();
+            _.each(users, function(a) {
+                console.log(a);
+            });
+            console.log('-------------------------------');
         }
     });
 });

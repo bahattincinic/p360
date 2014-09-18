@@ -55,7 +55,7 @@ Meteor.methods({
         // set user session as non-searching
         Sessions.update({'_id': userSession._id}, {$set: {'searching': false}});
     },
-    getOtherUserAvatar: function(userId){
+    getOtherUserAvatar: function(userId) {
         var userSession = Sessions.findOne({'userId': userId});
         if (!userSession) {
             // user must have a session at this point
@@ -70,12 +70,13 @@ Meteor.methods({
         }
         var remaining = _.without(room.sessions, userSession._id);
         if (remaining.length != 1) {
-            throw Meteor.Error(500, 'remaining');
+            throw new Meteor.Error(500, 'remaining');
         }
         var toSessionId = remaining[0];
         var toSession = Sessions.findOne({'_id': toSessionId});
         var toUser = Meteor.users.findOne({'_id': toSession.userId});
-        return toUser.avatarId;
+        console.log(toUser.avatarId);
+        return toUser.avatarId || '';
     }
 });
 

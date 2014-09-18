@@ -72,5 +72,8 @@ Images.allow({
     update: function (userId, doc, fields, modifier) {
         return doc.owner == userId;
     },
-    fetch: ['owner']
+    download: function(userId, file) {
+        // everyone can download
+        return true;
+    }
 });

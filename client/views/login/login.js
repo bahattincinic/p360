@@ -19,10 +19,11 @@ Template.login.events({
                     Accounts.createUser({
                         password: secret,
                         username: username,
-                        avatarId: ''
-                    }, function(err) {});
-                    // XXX callback really needed here
-                    // on createUser??
+                        avatarId: '',
+                        osman: 12
+                    }, function(err, res) {
+                        if (err) throw err;
+                    });
                 }
             });
         });
