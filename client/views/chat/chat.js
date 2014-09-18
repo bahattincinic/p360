@@ -119,10 +119,14 @@ Template.message.hasOwner = function(from){
 };
 
 Template.message.dateFormat = function(date){
+    // TODO: we need indicators like "xx min ago", "just now", "yesterday"
+    // not just straight hour:minute time indicator.
+    // server time will be different than users time!!
+    // use momentjs here
     var time = new Date();
     time.setTime(date);
-    var hour = time.getHours() > 9? time.getHours(): '0' + time.getHours();
-    var minute = time.getMinutes() > 9? time.getMinutes(): '0' + time.getMinutes();
+    var hour = time.getHours() > 9 ? time.getHours(): '0' + time.getHours();
+    var minute = time.getMinutes() > 9 ? time.getMinutes(): '0' + time.getMinutes();
     return hour + ':' + minute;
 }
 
