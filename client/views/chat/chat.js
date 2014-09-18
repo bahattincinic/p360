@@ -209,21 +209,15 @@ Meteor.startup(function() {
                     // if session has room then subscribe to id
                     if (newDocument.room) {
                         Session.set('roomId', newDocument.room);
-                        Meteor.call(
-                            'getOtherUserAvatar', Meteor.userId(), function(err, imageId) {
-
-                            if (err) {
-                                throw err;
-                            } else {
-                                if (imageId) {
-                                    Session.set('avatarId', imageId);
-                                }
-                            }
-                        });
                     } else {
                         Session.set('roomId', null);
                     }
 
+                    Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){
+                        if(imageId){
+                            Session.set('avatarId', imageId);
+                        }
+                    });
                 }
             });
         } else {
