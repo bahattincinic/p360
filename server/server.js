@@ -23,11 +23,13 @@ Meteor.startup(function() {
     Messages.remove({});
     Meteor.users.remove({});
     Shuffle.remove({});
+    Images.remove({});
     Rooms.remove({});
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
         socket.on('disconnect', function() {
+            console.log('disconnect reve');
             Fiber(function() {
                 Meteor.sockets.disconnect(socket);
             }).run();
@@ -234,6 +236,11 @@ Meteor.publish('rooms', function(roomId) {
     return Rooms.find({'_id': roomId});
 });
 
+Meteor.publish("images", function() {
+    return Images.find({});
+});
+
+
 Shuffle.find({'name': Settings.shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
         var shuffle = Shuffle.findOne({'name': Settings.shuffleName});
@@ -261,19 +268,10 @@ Shuffle.find({'name': Settings.shuffleName}).observe({
                     'socket count non matching');
             });
 
+
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
                 'isActive': true,
-                'avatars': [
-                    {
-                        'username': bob.username,
-                        'avatar': bob.avatar || ''
-                    },
-                    {
-                        'username': judy.username,
-                        'avatar': judy.avatar || ''
-                    }
-                ]
             });
 
             // emit start timeout event

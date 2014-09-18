@@ -88,6 +88,23 @@ Template.chat.events({
     'click #changeSound': function(){
         var newSound = !Session.get('sound');
         socket.emit('sound', newSound);
+    },
+    'change .avatarInput': function(event, template) {
+        var fsFile = new FS.File(event.target.files[0]);
+        fsFile.owner = Meteor.userId();
+        var image = Images.insert(fsFile, function (err) {
+          if (err) throw err;
+        });
+
+        var imageId = image._id;
+
+        Meteor.users.update({'_id': Meteor.userId()},
+            {$set : {'avatarId': imageId}},
+            function(err) {
+                console.log('user update ');
+                if (err) throw err;}
+        );
+
     }
 });
 
@@ -101,15 +118,22 @@ Template.chat.messages = function() {
 };
 
 Template.chat.getAvatar = function() {
-    // TODO: burada other yok!
-    // var room = Rooms.find().fetch();
-    // if(room.length > 0){
-    //     var other = _.find(room[0].avatars, function(item) {
-    //         return item.username != Meteor.user().username;
+    // var room = Rooms.findOne();
+
+    // if(room) {
+
+    //     var session = Sessions.findOne();
+    //     var other = _.find(room.sessions, function(sessionId) {
+    //         return sessionId != session._id;
     //     });
-    //     return other.avatar || '';
+
+    //     var otherSession
+
+    //     var otherAvatar = Images.findOne({'_id': other.avatar});
+    //     return otherAvatar;
     // }
-    return '';
+
+    return null;
 };
 
 Template.message.hasOwner = function(from){
@@ -175,6 +199,7 @@ Meteor.autorun(function() {
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
     Meteor.subscribe('users');
+    Meteor.subscribe('images');
     // user autorun
     Meteor.autorun(function() {
         if (Meteor.user()) {
