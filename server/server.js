@@ -12,13 +12,11 @@
  TODO: karsidaki adam cikinca digeri isTalking=false, isSearching=true olucak
        room kapanacak.
 */
-
 var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
 
 app.listen(4000);               // socketio listens on 4000
-shuffleName = 'x00x';           // our one and only  shuffle object name
 
 Meteor.startup(function() {
     Sessions.remove({});
@@ -29,17 +27,13 @@ Meteor.startup(function() {
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
-        console.log('connection socket with id: ' + socket.id);
-
         socket.on('disconnect', function() {
             Fiber(function() {
-                console.log('disconnected: ' + socket.id);
                 Meteor.sockets.disconnect(socket);
             }).run();
         });
 
         socket.on('loggedIn', function(userId) {
-            console.log('loggedin, setting session: ' + socket.id);
             Fiber(function() {
                 var user = Meteor.users.findOne({'_id': userId});
                 if (!user) return;
@@ -73,7 +67,6 @@ Meteor.startup(function() {
 
         socket.on('loggedOut', function() {
             Fiber(function() {
-                console.log('calling for logout');
                 Meteor.sockets.disconnect(socket);
             }).run();
         });
@@ -105,26 +98,7 @@ Meteor.startup(function() {
 
                 if (!room) throw new Meteor.Error(500, 'room already inactive');
 
-                // announce to room that we are no longer talking
-                Rooms.update({'_id': room._id}, {$set: {'isActive': false}});
-
-                console.log('process room: ' + room._id);
-                _.each(room.sessions, function(session) {
-                    console.log('process leave for sessions: ' + session);
-                    // set session as not talking
-                    Sessions.update({'_id': session},
-                        {$set: {
-                            'talking': false,
-                            'room': null,
-                            'searching': true
-                        }});
-
-                    var inner = Sessions.findOne({'_id': session});
-
-                    // add user to shuffle
-                    Shuffle.update({'name': shuffleName},
-                        {$addToSet: {'shuffle': inner.userId}});
-                });
+                ee.emit('leave', room._id);
             }).run();
         });
 
@@ -189,15 +163,14 @@ Meteor.startup(function() {
         socket.on('sound', function(newSound){
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
-                if(!session){
-                    throw Meteor.Error(500, 'unable to find session');
-                }
-                Sessions.update({'_id': session._id}, {$set: {
-                    sound: newSound
-                }});
+                if(!session) throw Meteor.Error(500, 'unable to find session');
+
+                Sessions.update(
+                    {'_id': session._id},
+                    {$set: {sound: newSound}}
+                );
             }).run();
         });
-
     });
 
     // TODO: for debugging only, must be removed at production
@@ -260,14 +233,13 @@ Meteor.publish('rooms', function(roomId) {
     return Rooms.find({'_id': roomId});
 });
 
-Shuffle.find({'name': shuffleName}).observe({
+Shuffle.find({'name': Settings.shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
-        var shuffle = Shuffle.findOne({'name': shuffleName});
+        var shuffle = Shuffle.findOne({'name': Settings.shuffleName});
         if (!shuffle) throw new Meteor.Error(500, 'Shuffle not found!');
 
         if (shuffle && shuffle.shuffle.length > 1) {
             // match make here
-            console.log('match needed!')
             // XXX change algo here
             var list = shuffle.shuffle;
             var bob = Meteor.users.findOne({'_id': list[0]});
@@ -303,6 +275,9 @@ Shuffle.find({'name': shuffleName}).observe({
                 ]
             });
 
+            // emit start timeout event
+            ee.emit('timeout', roomId);
+
             // set all sessions as 'talking'
             _.each(ss, function(s) {
                 Sessions.update({'_id': s._id},
@@ -313,9 +288,10 @@ Shuffle.find({'name': shuffleName}).observe({
             });
 
             // after all ops remove these guys from shuffle
-            Shuffle.update({'name': shuffleName}, {
-                $pullAll: {'shuffle': [bob._id, judy._id]}
-            });
+            Shuffle.update(
+                {'name': Settings.shuffleName},
+                {$pullAll: {'shuffle': [bob._id, judy._id]}}
+            );
         }
     }
 });

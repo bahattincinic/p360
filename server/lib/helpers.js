@@ -1,3 +1,4 @@
+
 Meteor.methods({
     checkPassword: function(digest) {
         check(digest, String);
@@ -21,7 +22,7 @@ Meteor.methods({
     // adds user to shuffle list, marks user Session as 'searching'
     startSearching: function(userId) {
         if (!userId) return;
-        Shuffle.upsert({'name': shuffleName},
+        Shuffle.upsert({'name': Settings.shuffleName},
             {$addToSet: {'shuffle': userId}});
 
         // get session for this user
@@ -41,7 +42,7 @@ Meteor.methods({
     stopSearching: function(userId) {
         if (!userId) return;
 
-        var shuffle = Shuffle.findOne({'name': shuffleName});
+        var shuffle = Shuffle.findOne({'name': Settings.shuffleName});
         if (!shuffle) throw new Meteor.Error(500, 'no shuffle record!');
 
         var userSession = Sessions.findOne({'userId': userId});
@@ -50,7 +51,7 @@ Meteor.methods({
                 'check session');
 
         // remove user from Shuffle
-        Shuffle.update({'name': shuffleName}, {$pull: {'shuffle': userId}});
+        Shuffle.update({'name': Settings.shuffleName}, {$pull: {'shuffle': userId}});
         // set user session as non-searching
         Sessions.update({'_id': userSession._id}, {$set: {'searching': false}});
     }
@@ -90,8 +91,8 @@ function Staple() {
             {$set: {'talking': false, 'searching': false, 'typing': false}});
 
         // if disconnecting user is somehow in shuffle remove her
-        if (Shuffle.findOne({'name': shuffleName})) {
-            Shuffle.update({'name': shuffleName},
+        if (Shuffle.findOne({'name': Settings.shuffleName})) {
+            Shuffle.update({'name': Settings.shuffleName},
                 {$pull: {'shuffle': session.userId}});
         }
 
@@ -130,7 +131,7 @@ function Staple() {
             var otherSession = Sessions.findOne({'_id': otherSessionId});
 
             // add other party to shuffle list
-            Shuffle.update({'name': shuffleName},
+            Shuffle.update({'name': Settings.shuffleName},
                 {$addToSet: {'shuffle': otherSession.userId}});
         }
     };

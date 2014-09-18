@@ -103,13 +103,14 @@ Template.chat.messages = function() {
 };
 
 Template.chat.getAvatar = function(){
-    var room = Rooms.find().fetch();
-    if(room.length > 0){
-        var other = _.find(room[0].avatars, function(item) {
-            return item.username != Meteor.user().username;
-        });
-        return other.avatar || '';
-    }
+    // TODO: burada other yok!
+    // var room = Rooms.find().fetch();
+    // if(room.length > 0){
+    //     var other = _.find(room[0].avatars, function(item) {
+    //         return item.username != Meteor.user().username;
+    //     });
+    //     return other.avatar || '';
+    // }
     return '';
 };
 

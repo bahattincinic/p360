@@ -34,6 +34,7 @@ mongo@1.0.4
 npm-bcrypt@0.7.7
 observe-sequence@1.0.2
 ordered-dict@1.0.0
+raix:eventemitter@0.0.2
 random@1.0.0
 reactive-dict@1.0.2
 reactive-var@1.0.1
