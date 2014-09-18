@@ -75,7 +75,7 @@ Meteor.methods({
         var toSessionId = remaining[0];
         var toSession = Sessions.findOne({'_id': toSessionId});
         var toUser = Meteor.users.findOne({'_id': toSession.userId});
-        console.log(toUser.avatarId);
+        console.log('avatarid: ' + toUser.avatarId);
         return toUser.avatarId || '';
     }
 });

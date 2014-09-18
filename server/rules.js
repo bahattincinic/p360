@@ -51,6 +51,7 @@ Meteor.users.allow({
     }
 });
 
+
 Rooms.allow({
     update: function (userId, doc, fields, modifier) {
         var session = Sessions.findOne({'userId': userId});

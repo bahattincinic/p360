@@ -185,11 +185,20 @@ Meteor.autorun(function() {
 
 Meteor.startup(function() {
     socket = io.connect('http://l:4000');
-    Meteor.subscribe('users');
     Meteor.subscribe('images');
     // user autorun
-    Meteor.autorun(function() {
+    Tracker.autorun(function() {
         if (Meteor.user()) {
+            Meteor.subscribe('users', Session.get('roomId'));
+            userHandle = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).observe({
+                added: function (document) {
+                    console.log('has user ot');
+                    // ...
+                },
+                removed: function (oldDocument) {
+                    console.log('removed');
+                }
+            });
             socket.emit('loggedIn', Meteor.user()._id);
             sessionHandle = Meteor.subscribe('sessions', Meteor.user()._id);
             observeHandle = Sessions.find({'userId': Meteor.user()._id}).observe({
