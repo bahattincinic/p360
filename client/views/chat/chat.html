@@ -63,7 +63,9 @@
             <div class="col-lg-12">
 
             <div class="seconds pull-right">
-                <span class="second">{{ timeLeft }}</span>
+                <span class="second">
+                    {{#if timeLeft }}{{ timeLeft }}{{ else }}360{{/if}}
+                </span>
                 <strong id="string_seconds">seconds</strong>
             </div>
             <div class="nextnext pull-right" style="margin-left:10px">
