@@ -149,7 +149,7 @@
             <div class="chat-body clearfix">
                 <div class="header">
                     <strong class="primary-font">{{ from }}</strong> <small class="pull-right text-muted">
-                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                        <span class="glyphicon glyphicon-time"></span>{{ dateFormat createdAt }}</small>
                 </div>
                 <p>{{body}}</p>
             </div>
@@ -161,7 +161,7 @@
             </span>
             <div class="chat-body clearfix">
                 <div class="header">
-                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{ dateFormat createdAt }}</small>
                     <strong class="pull-right primary-font">{{ from }}</strong>
                 </div>
                 <p>{{body}}</p>
