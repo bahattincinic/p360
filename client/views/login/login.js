@@ -18,8 +18,7 @@ Template.login.events({
                     // register
                     Accounts.createUser({
                         password: secret,
-                        username: username,
-                        avatarId: ''
+                        username: username
                     }, function(err) {});
                     // XXX callback really needed here
                     // on createUser??

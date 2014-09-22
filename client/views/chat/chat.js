@@ -213,7 +213,9 @@ Meteor.startup(function() {
                         Session.set('roomId', null);
                     }
                     Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){
-                        Session.set('avatarId', imageId);
+                        if(imageId){
+                            Session.set('avatarId', imageId);
+                        }
                     });
                 }
             });
