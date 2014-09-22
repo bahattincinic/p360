@@ -13,6 +13,7 @@ Session.setDefault('updateMessage', '');
 Session.setDefault('typing', false);
 Session.setDefault('sound', false);
 Session.setDefault('expirationDate', null);
+Session.setDefault('avatarId', null)
 
 
 Template.chat.events({
@@ -117,25 +118,6 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
-Template.chat.getAvatar = function() {
-    // var room = Rooms.findOne();
-
-    // if(room) {
-
-    //     var session = Sessions.findOne();
-    //     var other = _.find(room.sessions, function(sessionId) {
-    //         return sessionId != session._id;
-    //     });
-
-    //     var otherSession
-
-    //     var otherAvatar = Images.findOne({'_id': other.avatar});
-    //     return otherAvatar;
-    // }
-
-    return null;
-};
-
 Template.message.hasOwner = function(from){
     return Meteor.user().username == from;
 };
@@ -143,6 +125,11 @@ Template.message.hasOwner = function(from){
 Template.chat.timeLeft = function() {
     return Session.get('expirationDate') - Session.get('now');
 };
+
+Template.chat.getOtherUserAvatar = function(){
+    var ImageId = Session.get('avatarId');
+    return Images.findOne({'_id': ImageId});
+}
 
 Handlebars.registerHelper('session',function(input){
     return Session.get(input);
@@ -225,6 +212,9 @@ Meteor.startup(function() {
                     } else {
                         Session.set('roomId', null);
                     }
+                    Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){
+                        Session.set('avatarId', imageId);
+                    });
                 }
             });
         } else {
@@ -243,6 +233,7 @@ Meteor.startup(function() {
             Session.set('roomId', null);
             Session.set('updateMessage', '');
             Session.set('expirationDate', null);
+            Session.set('avatarId', null);
         }
     });
 });

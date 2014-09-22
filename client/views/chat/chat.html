@@ -47,8 +47,8 @@
     <div class="container">
         <div class="row ">
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 col-centered">
-                {{#if getAvatar}}
-                    <div class="ratio img-responsive img-circle " id="img_profile" style="background-image: url({{ getAvatar.url }});"></div>
+                {{#if session "avatarId" }}
+                    <div class="ratio img-responsive img-circle " id="img_profile" style="background-image: url({{getOtherUserAvatar.url store='images'}});"></div>
                  {{ else }}
                     <div class="ratio img-responsive img-circle " id="img_profile" style="background-image: url(img/default_pic.png);"></div>
                 {{/if}}

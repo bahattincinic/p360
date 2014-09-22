@@ -54,6 +54,28 @@ Meteor.methods({
         Shuffle.update({'name': Settings.shuffleName}, {$pull: {'shuffle': userId}});
         // set user session as non-searching
         Sessions.update({'_id': userSession._id}, {$set: {'searching': false}});
+    },
+    getOtherUserAvatar: function(userId){
+        var userSession = Sessions.findOne({'userId': userId});
+        if (!userSession) {
+            // user must have a session at this point
+            throw new Meteor.Error(500, 'user must have session');
+        }
+        if (!userSession.room) {
+            throw new Meteor.Error(500, 'unable to find room');
+        }
+        var room = Rooms.findOne({'_id': userSession.room, 'isActive': true});
+        if (!room){
+            throw new Meteor.Error(500, 'unable to find room');
+        }
+        var remaining = _.without(room.sessions, userSession._id);
+        if (remaining.length != 1) {
+            throw Meteor.Error(500, 'remaining');
+        }
+        var toSessionId = remaining[0];
+        var toSession = Sessions.findOne({'_id': toSessionId});
+        var toUser = Meteor.users.findOne({'_id': toSession.userId});
+        return toUser.avatarId;
     }
 });
 
