@@ -1,12 +1,14 @@
-# README #
+# Project 360 #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+A brief todo list for project 360.
 
-### What is this repository for? ###
+### What needs to be done still? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Testing!! We do not know how reliable our code and setup is, so we need a lot of testing at this point
+* Docket containers for deploying, one for mongodb db container and another one for app server container, 2 containers in total.
+* We need a reliable and automated way to handle deploying updated containers to server, or updating/downloading our code in containers.
+* [Learn Docker](https://www.docker.com/)
+* Using sentry for error tracking for meteor js with the help of meteor-raven
 
 ### How do I get set up? ###
 
