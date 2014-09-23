@@ -135,7 +135,7 @@ Handlebars.registerHelper('session',function(input){
     return Session.get(input);
 });
 
-Meteor.autorun(function() {
+Tracker.autorun(function() {
     if (Session.get('expirationDate')) {
         interval = Meteor.setInterval(function() {
             Session.set('now', Math.floor(new Date().getTime() / 1000));
@@ -146,7 +146,7 @@ Meteor.autorun(function() {
 });
 
 // room autorun
-Meteor.autorun(function() {
+Tracker.autorun(function() {
     if (Session.get('roomId')) {
         // sub to this room messages
         messageSubs = Meteor.subscribe('messages', Session.get('roomId'));
@@ -160,16 +160,12 @@ Meteor.autorun(function() {
             }
         });
     } else {
-        // no room, stop all subscriptions
-        if (roomObserveHandle) roomObserveHandle.stop();
-        if (messageSubs) messageSubs.stop();
-        if (roomSub) roomSub.stop();
         Session.set('expirationDate', null);
     }
 });
 
 // sound autorun
-Meteor.autorun(function() {
+Tracker.autorun(function() {
     if (Meteor.user() && Session.get('sound') && Session.get('roomId')) {
         messageObserveHandle = Messages.find(
             {'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
@@ -177,9 +173,6 @@ Meteor.autorun(function() {
                 $('#soundNot')[0].play();
             }
         });
-    } else {
-        // no longer in need of this observe
-        if (messageObserveHandle) messageObserveHandle.stop();
     }
 });
 
@@ -192,11 +185,28 @@ Meteor.startup(function() {
             Meteor.subscribe('users', Session.get('roomId'));
             userHandle = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).observe({
                 added: function (document) {
-                    console.log('has user ot');
-                    // ...
+                    var guy = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).fetch();
+
+                    // XXX may remove this at prod after testing
+                    if (guy.length !== 1) {
+                        throw new Error('guy length');
+                        return;
+                    }
+
+                    var guy = guy[0];
+                    if (guy.avatarId) {
+                        Session.set('avatarId', guy.avatarId);
+                    }
                 },
                 removed: function (oldDocument) {
-                    console.log('removed');
+                    // reset avatar id here
+                    Session.set('avatarId', null);
+                },
+                changed: function(newDocument, oldDocument) {
+                    // check if avatar has been updated in meantime
+                    if (newDocument.avatarId !== oldDocument.avatarId) {
+                        Session.set('avatarId', newDocument.avatarId);
+                    }
                 }
             });
             socket.emit('loggedIn', Meteor.user()._id);
@@ -230,13 +240,6 @@ Meteor.startup(function() {
                 }
             });
         } else {
-            // since user logged out, we no longer need any of these subs
-            if (sessionHandle) sessionHandle.stop();
-            if (observeHandle) observeHandle.stop();
-            if (roomObserveHandle) roomObserveHandle.stop();
-            if (messageObserveHandle) messageObserveHandle.stop();
-            if (messageSubs) messageSubs.stop();
-            if (roomSub) roomSub.stop();
             // reset all Session data
             Session.set('talking', false);
             Session.set('searching', false);
