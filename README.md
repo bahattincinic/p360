@@ -12,8 +12,8 @@ A brief todo list for project 360.
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
+* Mongo config and meteor bundle [MongoInstructions](https://docs.google.com/document/d/1zDWW3tV9KkEQmgl0xlMvoK5IS7x9vJo39mAlqtwMF_g/edit?pli=1#)
+* Install nodejs [NodeJS](https://rtcamp.com/tutorials/nodejs/node-js-npm-install-ubuntu/)
 * Dependencies
 * Database configuration
 * How to run tests
