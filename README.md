@@ -8,6 +8,7 @@ A brief todo list for project 360.
 * Docket containers for deploying, one for mongodb db container and another one for app server container, 2 containers in total.
 * We need a reliable and automated way to handle deploying updated containers to server, or updating/downloading our code in containers.
 * [Learn Docker](https://www.docker.com/)
+* Using  [DockerLinks](https://docs.docker.com/userguide/dockerlinks/) we can link multiple docker containers together, no fuss no harm.
 * Using sentry for error tracking for meteor js with the help of meteor-raven
 
 ### How do I get set up? ###
