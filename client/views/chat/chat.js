@@ -9,7 +9,6 @@ var interval;
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
-Session.setDefault('updateMessage', '');
 Session.setDefault('typing', false);
 Session.setDefault('sound', false);
 Session.setDefault('expirationDate', null);
@@ -17,8 +16,9 @@ Session.setDefault('avatarId', null)
 
 
 Template.chat.events({
-    'click #show_hide': function(e, t){
+    'click .show_hide': function(e, t){
         $(".settings").stop().slideToggle();
+        return false;
     },
     'keydown #input360': _.throttle(function(e, t) {
         socket.emit('typing', true);
@@ -50,7 +50,7 @@ Template.chat.events({
         var new_password = form.find('#new-password').value;
         Meteor.call('checkUsername', username, function(err, result){
             if(result && Meteor.user().username != username){
-                Session.set('updateMessage', 'username already exists');
+                alertify.error("username already exists");
             }else{
                 Meteor.users.update(
                     { '_id': Meteor.userId() },
@@ -60,13 +60,9 @@ Template.chat.events({
                 if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
-
-                Session.set('updateMessage', 'Profile has been updated');
+                alertify.success("Profile has been updated");
             }
         });
-    },
-    'click #close-message': function(e, t){
-        Session.set('updateMessage', '');
     },
     'click #next': function(e, t) {
 
@@ -91,10 +87,19 @@ Template.chat.events({
         socket.emit('sound', newSound);
     },
     'change .avatarInput': function(event, template) {
+        if(event.target.files.length == 0){
+            // empty data
+            return false;
+        }
         var fsFile = new FS.File(event.target.files[0]);
         fsFile.owner = Meteor.userId();
         var image = Images.insert(fsFile, function (err) {
-          if (err) throw err;
+              if (err){
+                alertify.error("Avatar could not be updated");
+                throw err;
+              }else{
+                alertify.success("Avatar has been updated");
+              }
         });
 
         var imageId = image._id;
@@ -102,7 +107,6 @@ Template.chat.events({
         Meteor.users.update({'_id': Meteor.userId()},
             {$set : {'avatarId': imageId}},
             function(err) {
-                console.log('user update ');
                 if (err) throw err;}
         );
 
@@ -129,6 +133,11 @@ Template.chat.timeLeft = function() {
 Template.chat.getOtherUserAvatar = function(){
     var ImageId = Session.get('avatarId');
     return Images.findOne({'_id': ImageId});
+}
+
+Template.chat.getUserAvatar = function(){
+    var user = Meteor.users.findOne({'_id': Meteor.userId()});
+    return Images.findOne({'_id': user.avatarId});
 }
 
 Handlebars.registerHelper('session',function(input){
@@ -246,7 +255,6 @@ Meteor.startup(function() {
             Session.set('typing', false);
             Session.set('sound', false);
             Session.set('roomId', null);
-            Session.set('updateMessage', '');
             Session.set('expirationDate', null);
             Session.set('avatarId', null);
         }

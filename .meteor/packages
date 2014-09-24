@@ -10,4 +10,5 @@ accounts-password
 raix:eventemitter
 cfs:standard-packages
 cfs:filesystem
+bahattincinic:meteor-alertify
 

@@ -11,7 +11,7 @@ Template.login.events({
             // check password
             Meteor.call('checkUsername', username, function(err, result){
                 if (result){
-                    Session.set('message', 'username is being used / username or passord invalid');
+                    alertify.error("Error username is being used / username or passord invalid");
                     t.find('#account-username').value = '';
                     t.find('#account-secret').value = '';
                 } else {
@@ -26,15 +26,8 @@ Template.login.events({
             });
         });
         return false;
-    },
-    'click #close-message': function(e, t){
-        Session.set('message', '');
     }
 });
-
-Template.login.message = function(){
-    return Session.get('message') || '';
-};
 
 Template.login.rendered = function() {
       $.backstretch([
