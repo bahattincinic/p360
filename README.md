@@ -12,6 +12,8 @@ A brief todo list for project 360.
 * [Learn Docker](https://www.docker.com/)
 * Using  [DockerLinks](https://docs.docker.com/userguide/dockerlinks/) we can link multiple docker containers together, no fuss no harm.
 * Using sentry for error tracking for meteor js with the help of meteor-raven
+* Robomongo
+* kadira
 
 ### How do I get set up? ###
 

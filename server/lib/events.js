@@ -24,8 +24,12 @@ ee.on('timeout', function(roomId) {
 ee.on('leave', function(roomId) {
     var room = Rooms.findOne({'_id': roomId});
 
+    if (!room.isActive) {
+        // room already disbanded, nothing more to do
+        return;
+    }
+
     Meteor.assert(room, 'no such room: ' + roomId);
-    Meteor.assert(room.isActive, 'room is not active!');
     Meteor.assert(room.sessions.length == 2, 'session length does not match!');
 
     // do actual leave work here

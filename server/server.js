@@ -19,12 +19,12 @@ var Fiber = Npm.require('fibers');
 app.listen(4000);               // socketio listens on 4000
 
 Meteor.startup(function() {
-    Sessions.remove({});
-    Messages.remove({});
-    Meteor.users.remove({});
-    Shuffle.remove({});
-    Images.remove({});
-    Rooms.remove({});
+    // Sessions.remove({});
+    // Messages.remove({});
+    // Meteor.users.remove({});
+    // Shuffle.remove({});
+    // Images.remove({});
+    // Rooms.remove({});
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
