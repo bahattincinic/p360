@@ -31,7 +31,7 @@ Template.login.events({
 
 Template.login.rendered = function() {
       $.backstretch([
-            "http://cdn.omgfacts.com/2014/5/12/14ecf36fda9414b6d1cc67f728dea42c.jpg",
-            "http://allaboutlemon.files.wordpress.com/2012/09/earth-photo-from-cosmos-img1261.jpg"
+            "slide/slide-1.jpg",
+            "slide/slide-2.jpg"
       ], {duration: 3000, fade: 750});
 };
