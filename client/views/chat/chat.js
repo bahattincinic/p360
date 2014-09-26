@@ -135,6 +135,14 @@ Template.chat.getOtherUserAvatar = function(){
     return Images.findOne({'_id': ImageId});
 }
 
+Template.chat.getOtherUser = function(){
+    var guy = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).fetch();
+    if(guy.length > 0){
+        return guy[0];
+    }
+    return 'anonim';
+}
+
 Template.chat.getUserAvatar = function(){
     var user = Meteor.users.findOne({'_id': Meteor.userId()});
     return Images.findOne({'_id': user.avatarId});
