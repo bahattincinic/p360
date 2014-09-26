@@ -164,3 +164,17 @@ font-size: 16px;
 {
     margin-right: 5px;
 }
+
+@media (max-width: 600px) {
+  .logo {
+    display: none !important;
+  }
+  .myProfile{
+    margin-left: 15px !important;
+  }
+
+  .nextnext{
+    float: left !important;
+    margin-left: 0px !important;
+  }
+}
