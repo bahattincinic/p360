@@ -12,7 +12,8 @@ Session.setDefault('searching', false);
 Session.setDefault('typing', false);
 Session.setDefault('sound', false);
 Session.setDefault('expirationDate', null);
-Session.setDefault('avatarId', null)
+Session.setDefault('avatarId', null);
+Session.setDefault('countdown', Settings.countdown);
 
 
 Template.chat.events({
@@ -127,7 +128,7 @@ Template.message.hasOwner = function(from){
 };
 
 Template.chat.timeLeft = function() {
-    return Session.get('expirationDate') - Session.get('now');
+    return Session.get('countdown');
 };
 
 Template.chat.getOtherUserAvatar = function(){
@@ -152,16 +153,6 @@ Handlebars.registerHelper('session',function(input){
     return Session.get(input);
 });
 
-Tracker.autorun(function() {
-    if (Session.get('expirationDate')) {
-        interval = Meteor.setInterval(function() {
-            Session.set('now', Math.floor(new Date().getTime() / 1000));
-        }, 1000);
-    } else {
-        Meteor.clearInterval(interval);
-    }
-});
-
 // room autorun
 Tracker.autorun(function() {
     if (Session.get('roomId')) {
@@ -169,15 +160,18 @@ Tracker.autorun(function() {
         messageSubs = Meteor.subscribe('messages', Session.get('roomId'));
         // sub to this room
         roomSub = Meteor.subscribe('rooms', Session.get('roomId'));
+        interval = Meteor.setInterval(function(){
+            var num = Session.get('countdown') - 1;
 
-        roomObserveHandle = Rooms.find({'_id': Session.get('roomId')}).observe({
-            added: function(newDocument) {
-                var seconds = Math.floor(new Date().getTime() / 1000) + Settings.xx;
-                Session.set('expirationDate', seconds);
-            }
-        });
+            if (num > 0) {
+                Session.set('countdown', num);
+            } else {
+                console.log('countdown <<');
+             }
+        }, 1000);
     } else {
-        Session.set('expirationDate', null);
+        Meteor.clearInterval(interval);
+        Session.set('countdown', Settings.countdown);
     }
 });
 
