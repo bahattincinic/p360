@@ -10,4 +10,4 @@ RUN mkdir -p /data/mongo/db && mkdir -p /data/mongo/log/
 
 ADD mongod.conf /etc/mongod.conf
 
-# ENTRYPOINT ["/usr/bin/mongod", "--config", "/etc/mongod.conf"]
+CMD /usr/bin/mongod --config /etc/mongod.conf

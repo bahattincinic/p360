@@ -144,16 +144,19 @@ Meteor.startup(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
 
                 if (!session || !session.talking || !session.room) {
+                    if (Settings.production) return;
                     throw Meteor.Error(500, 'unable to find session');
                 }
 
                 var room = Rooms.findOne({'_id': session.room});
                 if (!room || !room.isActive || room.sessions.length != 2) {
+                    if (Settings.production) return;
                     throw Meteor.Error(500, 'unable to find a legit room');
                 }
 
                 var remaining = _.without(room.sessions, session._id);
                 if (remaining.length != 1) {
+                    if (Settings.production) return;
                     throw Meteor.Error(500, 'remaining');
                 }
                 var toSessionId = remaining[0];
@@ -297,10 +300,10 @@ Shuffle.find({'name': Settings.shuffleName}).observe({
                     'socket count non matching');
             });
 
-
             var roomId = Rooms.insert({
                 'sessions': [bobSession._id, judySession._id],
                 'isActive': true,
+                'countdown': Settings.countdown
             });
 
             // emit start timeout event

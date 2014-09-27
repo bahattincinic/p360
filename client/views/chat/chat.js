@@ -1,9 +1,4 @@
 var socket;
-var messageSubs;
-var roomSub;
-var messageObserveHandle;
-var roomObserveHandle;
-var interval;
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -12,7 +7,6 @@ Session.setDefault('sound', false);
 Session.setDefault('expirationDate', null);
 Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
-
 
 Template.chat.events({
     'click .show_hide': function(e, t){
@@ -152,15 +146,17 @@ Handlebars.registerHelper('session',function(input){
 Tracker.autorun(function() {
     if (Session.get('roomId')) {
         // sub to this room messages
-        messageSubs = Meteor.subscribe('messages', Session.get('roomId'));
+        Meteor.subscribe('messages', Session.get('roomId'));
         // sub to this room
-        roomSub = Meteor.subscribe('rooms', Session.get('roomId'));
-        interval = Meteor.setInterval(function(){
-            var num = Session.get('countdown') - 1;
-            Session.set('countdown', num);
-        }, 1000);
+        Meteor.subscribe('rooms', Session.get('roomId'));
+
+        Rooms.find({'_id': Session.get('roomId')}).observe({
+            changed: function (newDocument, oldDocument) {
+                // refresh countdown here
+                Session.set('countdown', newDocument.countdown);
+            }
+        });
     } else {
-        Meteor.clearInterval(interval);
         Session.set('countdown', Settings.countdown);
     }
 });
@@ -168,7 +164,7 @@ Tracker.autorun(function() {
 // sound autorun
 Tracker.autorun(function() {
     if (Meteor.user() && Session.get('sound') && Session.get('roomId')) {
-        messageObserveHandle = Messages.find(
+        Messages.find(
             {'roomId': Session.get('roomId'), 'to': Meteor.user().username}).observe({
             added: function(document) {
                 $('#soundNot')[0].play();
@@ -232,6 +228,7 @@ Meteor.startup(function() {
                         Session.set('roomId', newDocument.room);
                     } else {
                         Session.set('roomId', null);
+
                     }
 
                     Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){

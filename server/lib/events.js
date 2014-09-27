@@ -18,9 +18,20 @@ ee.on('timeout', function(roomId) {
     Meteor.setTimeout(function() {
         ee.emit('leave', self.room._id);
     }, Settings.roomTimeout);
+
+    self.interval = Meteor.setInterval(function() {
+        self.room = Rooms.findOne({'_id': roomId});
+        if (self.room.countdown == 0 || self.room.countdown < 0 || !self.room.isActive) {
+            Meteor.clearInterval(self.interval);
+        }
+
+        Rooms.update({'_id': roomId},
+            {$inc: {'countdown': -1}});
+    }, 1000);
 });
 
 // leave event when disbanding a room
+// called from multiple locations
 ee.on('leave', function(roomId) {
     var room = Rooms.findOne({'_id': roomId});
 
