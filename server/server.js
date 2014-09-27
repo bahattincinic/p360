@@ -79,7 +79,6 @@ Meteor.startup(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
                 if (!session) {
                     throw new Meteor.Error(500, 'session not found when leaving..');
-                    return;
                 }
 
                 // XXX remove before prod
@@ -100,7 +99,6 @@ Meteor.startup(function() {
                 Meteor.assert(room._id == __recorded_room[0]._id, 'room ids do not match');
 
                 if (!room) throw new Meteor.Error(500, 'room already inactive');
-
                 ee.emit('leave', room._id);
             }).run();
         });

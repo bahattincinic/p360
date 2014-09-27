@@ -44,13 +44,20 @@ ee.on('leave', function(roomId) {
                 'talking': false,
                 'room': null,
                 'searching': true
-            }});
+            }}
+        );
 
         var inner = Sessions.findOne({'_id': session});
-
-        // add user to shuffle
-        Shuffle.update({'name': Settings.shuffleName},
-            {$addToSet: {'shuffle': inner.userId}});
+        Meteor.setTimeout(function() {
+            ee.emit('shuffle', inner.userId);
+        }, 2000);
     });
-
 });
+
+
+ee.on('shuffle', function(sessionId) {
+    // add user to shuffle
+    Shuffle.update({'name': Settings.shuffleName},
+        {$addToSet: {'shuffle': sessionId}});
+});
+

@@ -75,7 +75,6 @@ Meteor.methods({
         var toSessionId = remaining[0];
         var toSession = Sessions.findOne({'_id': toSessionId});
         var toUser = Meteor.users.findOne({'_id': toSession.userId});
-        console.log('avatarid: ' + toUser.avatarId);
         return toUser.avatarId || '';
     }
 });
@@ -162,9 +161,3 @@ function Staple() {
 
 Meteor.sockets = new Staple();
 
-Meteor.assert = function(condition, message) {
-    if (!condition) {
-        message = message || 'Assertion failed';
-        throw new Meteor.Error(500, message);
-    }
-};

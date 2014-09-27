@@ -1,7 +1,5 @@
 var socket;
 var messageSubs;
-var sessionHandle;
-var observeHandle;
 var roomSub;
 var messageObserveHandle;
 var roomObserveHandle;
@@ -31,9 +29,6 @@ Template.chat.events({
         Meteor.logout(function(err){
             if(!err && socket) {
                 socket.emit('loggedOut');
-                if (sessionHandle) {
-                    sessionHandle.stop();
-                }
             }
         })
     },
@@ -162,12 +157,7 @@ Tracker.autorun(function() {
         roomSub = Meteor.subscribe('rooms', Session.get('roomId'));
         interval = Meteor.setInterval(function(){
             var num = Session.get('countdown') - 1;
-
-            if (num > 0) {
-                Session.set('countdown', num);
-            } else {
-                console.log('countdown <<');
-             }
+            Session.set('countdown', num);
         }, 1000);
     } else {
         Meteor.clearInterval(interval);
@@ -194,7 +184,7 @@ Meteor.startup(function() {
     Tracker.autorun(function() {
         if (Meteor.user()) {
             Meteor.subscribe('users', Session.get('roomId'));
-            userHandle = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).observe({
+            Meteor.users.find({'_id': {$ne: Meteor.userId()}}).observe({
                 added: function (document) {
                     var guy = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).fetch();
 
@@ -220,9 +210,10 @@ Meteor.startup(function() {
                     }
                 }
             });
+
             socket.emit('loggedIn', Meteor.user()._id);
-            sessionHandle = Meteor.subscribe('sessions', Meteor.user()._id);
-            observeHandle = Sessions.find({'userId': Meteor.user()._id}).observe({
+            Meteor.subscribe('sessions', Meteor.user()._id);
+            Sessions.find({'userId': Meteor.user()._id}).observe({
                 added: function (document) {
                     Session.set('talking', document.talking);
                     Session.set('searching', document.searching);
@@ -244,7 +235,7 @@ Meteor.startup(function() {
                     }
 
                     Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){
-                        if(imageId){
+                        if(imageId) {
                             Session.set('avatarId', imageId);
                         }
                     });
