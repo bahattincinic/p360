@@ -31,6 +31,7 @@ Template.chat.events({
                 socket.emit('loggedOut');
             }
         })
+        return false;
     },
     'submit #form360': function(e, form) {
         e.preventDefault();
