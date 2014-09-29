@@ -15,12 +15,20 @@ A brief todo list for project 360.
 * Robomongo
 * kadira
 
+### MongoUsers ###
+
+* use admin
+* db.createUser({user: "admin", pwd: "1q2w3e", roles: ["userAdminAnyDatabase"]})
+* use meteor
+* db.createUser({user: "meteor", pwd: "1q2w3e", roles: [ "readWrite", "dbAdmin" ]})
+
 ### Running dockers ###
 
 * sudo docker run --name data p360/data true
-* sudo docker run -d --name db --volumes-from data p360/db
-* sudo docker run -d -P --name app --volumes-from data --link db:db -p 3000:3000 -p 4000:4000 p360/app
-* sudo docker run --rm --name xapp -i -t -P --volumes-from data --link db:db -p 3001:3001 -p 4001:4001 p360/app bash
+* db run:   sudo docker run -d --name db --volumes-from data p360/db
+* db debug: sudo docker run -i -t --rm --volumes-from data p360/db bash
+* app run: sudo docker run -d -P --name app --volumes-from data --link db:db -p 3000:3000 -p 4000:4000 p360/app
+* app debug: sudo docker run --rm -i -t -P --volumes-from data --link db:db -p 3001:3001 -p 4001:4001 p360/app bash
 
 ### How do I get set up? ###
 
