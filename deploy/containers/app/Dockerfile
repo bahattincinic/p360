@@ -23,7 +23,7 @@ ENV MONGO_URL mongodb://meteor:1q2w3e@db:27017/meteor
 ENV ROOT_URL http://example.com
 # expose needed ports
 EXPOSE 3001
-EXPOSE 4000
+EXPOSE 4001
 # reset workdir to /
 WORKDIR /
 
