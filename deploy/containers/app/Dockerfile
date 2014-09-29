@@ -18,11 +18,11 @@ ADD bundle /app
 WORKDIR /app/programs/server/
 RUN npm install && npm install socket.io
 # these env vars needed for app to run
-ENV PORT 3000
+ENV PORT 3001
 ENV MONGO_URL mongodb://meteor:1q2w3e@db:27017/meteor
 ENV ROOT_URL http://example.com
 # expose needed ports
-EXPOSE 3000
+EXPOSE 3001
 EXPOSE 4000
 # reset workdir to /
 WORKDIR /
