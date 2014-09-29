@@ -17,6 +17,7 @@ A brief todo list for project 360.
 
 ### Running dockers ###
 
+* sudo docker run --name data p360/data true
 * sudo docker run -d --name db --volumes-from data p360/db
 * sudo docker run -d -P --name app --volumes-from data --link db:db -p 3000:3000 -p 4000:4000 p360/app
 
