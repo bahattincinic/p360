@@ -175,8 +175,8 @@ Tracker.autorun(function() {
 });
 
 Meteor.startup(function() {
-    var connTarget = window.location.host + ':' + Settings.sioPort;
-    console.log(connTarget);
+    var origin = window.location.host.split(":")[0];
+    var connTarget = origin + ':' + Settings.ioPort;
     socket = io.connect(connTarget);
     Meteor.subscribe('images');
     // user autorun
