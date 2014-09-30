@@ -21,12 +21,12 @@ var Fiber = Npm.require('fibers');
 app.listen(4000);               // socketio listens on 4000
 
 Meteor.startup(function() {
-    // Sessions.remove({});
-    // Messages.remove({});
-    // Meteor.users.remove({});
-    // Shuffle.remove({});
-    // Images.remove({});
-    // Rooms.remove({});
+    Sessions.remove({});
+    Messages.remove({});
+    Meteor.users.remove({});
+    Shuffle.remove({});
+    Images.remove({});
+    Rooms.remove({});
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
@@ -146,21 +146,19 @@ Meteor.startup(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
 
                 if (!session || !session.talking || !session.room) {
-                    if (Settings.production) return;
-                    throw Meteor.Error(500, 'unable to find session');
+                    return;
                 }
 
                 var room = Rooms.findOne({'_id': session.room});
                 if (!room || !room.isActive || room.sessions.length != 2) {
-                    if (Settings.production) return;
-                    throw Meteor.Error(500, 'unable to find a legit room');
+                    return;
                 }
 
                 var remaining = _.without(room.sessions, session._id);
                 if (remaining.length != 1) {
-                    if (Settings.production) return;
-                    throw Meteor.Error(500, 'remaining');
+                    return;
                 }
+
                 var toSessionId = remaining[0];
                 Sessions.update({'_id': toSessionId}, {$set: {'typing': value}});
             }).run();
@@ -169,7 +167,7 @@ Meteor.startup(function() {
         socket.on('sound', function(newSound){
             Fiber(function() {
                 var session = Sessions.findOne({'sockets': {$in: [socket.id]}});
-                if(!session) throw Meteor.Error(500, 'unable to find session');
+                if(!session) return;
 
                 Sessions.update(
                     {'_id': session._id},
