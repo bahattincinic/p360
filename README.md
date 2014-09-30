@@ -18,9 +18,9 @@ A brief todo list for project 360.
 ### MongoUsers ###
 
 * use admin
-* db.createUser({user: "admin", pwd: "1q2w3e", roles: ["userAdminAnyDatabase"]})
+* db.createUser({user: "admin", pwd: "xxx", roles: ["userAdminAnyDatabase"]})
 * use meteor
-* db.createUser({user: "meteor", pwd: "1q2w3e", roles: [ "readWrite", "dbAdmin" ]})
+* db.createUser({user: "meteor", pwd: "xxx", roles: ["readWrite", "dbAdmin"]})
 
 ### Running dockers ###
 
