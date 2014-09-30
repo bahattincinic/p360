@@ -4,7 +4,7 @@
 var EventEmitter = Npm.require('events').EventEmitter;
 // global events
 ee = new EventEmitter();
-var pile = [];
+var pile = {};
 
 ee.on('timeout', function(roomId) {
     console.log('timeout run');
@@ -26,6 +26,7 @@ ee.on('timeout', function(roomId) {
             console.log('clear interval..  ' + room.countdown + ':' + room._id);
             var interval = pile[room._id];
             Meteor.clearInterval(interval);
+            delete pile[room._id];
         } else {
             Rooms.update({'_id': roomId},
                 {$inc: {'countdown': -1}});
