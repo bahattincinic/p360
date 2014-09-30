@@ -104,7 +104,7 @@ Template.chat.events({
     }
 });
 
-Template.chat.rendered = function(){
+Template.chat.rendered = function() {
     $.backstretch("destroy");
 };
 
@@ -175,7 +175,9 @@ Tracker.autorun(function() {
 });
 
 Meteor.startup(function() {
-    socket = io.connect('http://l:4000');
+    var connTarget = Settings.target + ':' + Settings.sioPort;
+    console.log(connTarget);
+    socket = io.connect(connTarget);
     Meteor.subscribe('images');
     // user autorun
     Tracker.autorun(function() {

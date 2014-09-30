@@ -13,9 +13,6 @@
        room kapanacak.
 
 */
-
-console.warn(process.env.ROOT_URL);
-
 var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');

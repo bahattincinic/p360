@@ -27,8 +27,8 @@ A brief todo list for project 360.
 * sudo docker run --name data p360/data true
 * db run:   sudo docker run -d --name db --volumes-from data p360/db
 * db debug: sudo docker run -i -t --rm --volumes-from data p360/db bash
-* app run: sudo docker run -d -P --name app --volumes-from data --link db:db -p 127.0.0.1:3000:3000 -p 4000:4000 p360/app
-* app debug: sudo docker run --rm -i -t -P --volumes-from data --link db:db -p 127.0.0.1:3000:3000 -p 4000:4000 p360/app bash
+* app run: sudo docker run -d -P --name app --volumes-from data --link db:db -p 3000:3000 -p 4000:4000 p360/app
+* app debug: sudo docker run --rm -i -t -P --volumes-from data --link db:db -p 3000:3000 -p 4000:4000 p360/app bash
 
 ### How do I get set up? ###
 
@@ -49,3 +49,21 @@ A brief todo list for project 360.
 
 * Repo owner or admin
 * Other community or team contact
+
+
+### Example Env ###
+
+{ HOSTNAME: '53da9d8cc37d',
+  DB_NAME: '/elegant_fermat/db',
+  DB_PORT_27017_TCP: 'tcp://172.17.0.8:27017',
+  TERM: 'xterm',
+  DB_PORT: 'tcp://172.17.0.8:27017',
+  DB_PORT_27017_TCP_PORT: '27017',
+  PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+  PWD: '/',
+  DB_PORT_27017_TCP_PROTO: 'tcp',
+  MONGO_URL: 'mongodb://meteor:1q2w3e@db:27017/meteor',
+  ROOT_URL: 'http://example.com',
+  SHLVL: '1'
+}
+
