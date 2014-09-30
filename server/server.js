@@ -12,6 +12,7 @@
  TODO: karsidaki adam cikinca digeri isTalking=false, isSearching=true olucak
        room kapanacak.
 */
+console.warn(process.env);
 var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
