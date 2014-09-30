@@ -7,7 +7,8 @@ RUN echo "deb http://ppa.launchpad.net/chris-lea/node.js/ubuntu precise main" >>
 RUN apt-get update
 
 # Faster to add GPG key directly, rather than install python-software-properties
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C7917B12
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C7917B12
+
 
 RUN apt-get update
 RUN apt-get install -y nodejs
@@ -20,7 +21,7 @@ RUN npm install && npm install socket.io
 # these env vars needed for app to run
 ENV PORT 3000
 ENV MONGO_URL mongodb://meteor:1q2w3e@db:27017/meteor
-ENV ROOT_URL http://example.com
+ENV ROOT_URL http://spinchat.burakalkan.com
 # expose needed ports
 EXPOSE 3000
 EXPOSE 4000
