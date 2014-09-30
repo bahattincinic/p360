@@ -7,8 +7,7 @@ RUN echo "deb http://ppa.launchpad.net/chris-lea/node.js/ubuntu precise main" >>
 RUN apt-get update
 
 # Faster to add GPG key directly, rather than install python-software-properties
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C7917B12
-
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C7917B12
 
 RUN apt-get update
 RUN apt-get install -y nodejs
