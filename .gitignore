@@ -1,3 +1,5 @@
 .idea
 360.iml
 ._*
+*.pyc
+bundle

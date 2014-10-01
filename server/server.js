@@ -233,8 +233,6 @@ Meteor.publish('messages', function(roomId) {
     return Messages.find({'roomId': roomId});
 });
 
-
-
 Meteor.publish('users', function(roomId) {
     if (!this.userId) return [];
 
