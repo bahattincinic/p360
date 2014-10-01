@@ -1,4 +1,3 @@
-
 Meteor.methods({
     checkPassword: function(digest) {
         check(digest, String);
