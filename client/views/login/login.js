@@ -6,7 +6,9 @@ Template.login.events({
         console.log('login ' + username + ":" + secret);
 
         Meteor.loginWithPassword(username, secret, function(error) {
-            if (!error){
+            console.log('xxx');
+
+            if (!error) {
                 // login
                 return false;
             }
