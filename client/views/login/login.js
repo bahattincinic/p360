@@ -3,13 +3,24 @@ Template.login.events({
         e.preventDefault();
         username = t.find('#account-username').value;
         secret = t.find('#account-secret').value;
+        console.log('login ' + username + ":" + secret);
+
         Meteor.loginWithPassword(username, secret, function(error) {
             if (!error){
                 // login
                 return false;
             }
+
+            throw error;
+            console.log('check username');
+
             // check password
             Meteor.call('checkUsername', username, function(err, result){
+                if (err)  {
+                    throw err;
+                    return;
+                }
+
                 if (result){
                     alertify.error("Error username is being used / username or passord invalid");
                     t.find('#account-username').value = '';
