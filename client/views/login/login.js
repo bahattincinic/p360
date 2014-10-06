@@ -3,18 +3,12 @@ Template.login.events({
         e.preventDefault();
         username = t.find('#account-username').value;
         secret = t.find('#account-secret').value;
-        console.log('login ' + username + ":" + secret);
 
         Meteor.loginWithPassword(username, secret, function(error) {
-            console.log('xxx');
-
             if (!error) {
                 // login
-                return false;
+                return true;
             }
-
-            throw error;
-            console.log('check username');
 
             // check password
             Meteor.call('checkUsername', username, function(err, result){

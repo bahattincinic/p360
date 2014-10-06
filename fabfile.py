@@ -1,4 +1,3 @@
-import ipdb
 import os
 from fabric.api import run, env, cd, task, prefix
 from fabric.colors import (green, red, cyan, magenta, yellow)
