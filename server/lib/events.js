@@ -84,7 +84,7 @@ ee.on('shuffle', function(sessionId) {
     Meteor.assert(session.searching, 'session supposed to be searching');
     Meteor.assert(session.userId, 'session must have a userid');
 
-    // XXX remove prod
+    // XXX remove prod maybe
     var user = Meteor.users.findOne({'_id': session.userId});
     Meteor.assert(user, 'user must be valid');
 
