@@ -179,7 +179,7 @@ Meteor.startup(function() {
 
     // TODO: for debugging only, must be removed at production
     return Meteor.methods({
-        removeAllMessages: function() {
+        rm: function() {
             return Messages.remove({});
         },
         ru: function() {
@@ -256,8 +256,6 @@ Meteor.publish('users', function(roomId) {
     return Meteor.users.find({'_id': {$in: users}});
 });
 
-
-
 Meteor.publish('sessions', function(userId) {
     return Sessions.find({'userId': userId});
 });
@@ -266,10 +264,9 @@ Meteor.publish('rooms', function(roomId) {
     return Rooms.find({'_id': roomId});
 });
 
-Meteor.publish("images", function() {
+Meteor.publish('images', function() {
     return Images.find({});
 });
-
 
 Shuffle.find({'name': Settings.shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
@@ -287,7 +284,6 @@ Shuffle.find({'name': Settings.shuffleName}).observe({
             var ss = [Sessions.findOne({'userId': bob._id}),
                       Sessions.findOne({'userId': judy._id})];
 
-            // XXX remove at prod
             _.each(ss, function(_session) {
                 Meteor.assert(_session, 'user session does ' +
                     'not exists while matching');

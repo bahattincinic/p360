@@ -68,16 +68,29 @@ ee.on('leave', function(roomId) {
         );
 
         var inner = Sessions.findOne({'_id': session});
+        // set shuffle to fire 2secs later
         Meteor.setTimeout(function() {
-            ee.emit('shuffle', inner.userId);
+            ee.emit('shuffle', inner._id);
         }, 2000);
     });
 });
 
-
 ee.on('shuffle', function(sessionId) {
-    // add user to shuffle
-    Shuffle.update({'name': Settings.shuffleName},
-        {$addToSet: {'shuffle': sessionId}});
+    // add session to shuffle
+    // if still in searching mode
+    console.log('add to shuffle: ' + sessionId);
+    var session = Sessions.findOne({'_id': sessionId});
+    Meteor.assert(session, 'no session!!');
+    Meteor.assert(session.searching, 'session supposed to be searching');
+    Meteor.assert(session.userId, 'session must have a userid');
+
+    // XXX remove prod
+    var user = Meteor.users.findOne({'_id': session.userId});
+    Meteor.assert(user, 'user must be valid');
+
+    if (session && session.searching) {
+        Shuffle.update({'name': Settings.shuffleName},
+            {$addToSet: {'shuffle': session.userId}});
+    }
 });
 
