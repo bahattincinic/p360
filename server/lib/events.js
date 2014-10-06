@@ -57,7 +57,11 @@ ee.on('leave', function(roomId) {
 
     // update each session accordingly
     _.each(room.sessions, function(session) {
-        // set session as not talking
+        // XXX remove prod
+        var ss = Sessions.findOne({'_id': session});
+        Meteor.assert(ss.room == room._id, 'session must have correct room');
+
+        // set session as none talking, searching
         Sessions.update(
             {'_id': session},
             {$set: {
