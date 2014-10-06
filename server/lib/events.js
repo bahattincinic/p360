@@ -85,7 +85,6 @@ ee.on('shuffle', function(sessionId) {
     console.log('add to shuffle: ' + sessionId);
     var session = Sessions.findOne({'_id': sessionId});
     Meteor.assert(session, 'no session!!');
-    Meteor.assert(session.searching, 'session supposed to be searching');
     Meteor.assert(session.userId, 'session must have a userid');
 
     // XXX remove prod maybe
