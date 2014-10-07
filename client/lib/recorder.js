@@ -1,15 +1,18 @@
-(function(window){
-
-  var WORKER_PATH = 'recorderWorker.js';
+(function(window) {
+  // var WORKER_PATH = 'recorderWorker.js';
 
   var Recorder = function(source, cfg){
+    var blob = new Blob([
+      document.querySelector("script[type=\"text\/worker\"]").textContent
+      ], {type: "text/javascript"});
     var config = cfg || {};
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
     this.node = (this.context.createScriptProcessor ||
                  this.context.createJavaScriptNode).call(this.context,
                                                          bufferLen, 2, 2);
-    var worker = new Worker(config.workerPath || WORKER_PATH);
+    // var worker = new Worker(config.workerPath || WORKER_PATH);
+    var worker = new Worker(window.URL.createObjectURL(blob));
     worker.postMessage({
       command: 'init',
       config: {
@@ -55,7 +58,8 @@
       worker.postMessage({ command: 'getBuffer' })
     }
 
-    this.exportWAV = function(cb, type){
+    this.exportWAV = function(cb, type) {
+      console.log('making call to worker');
       currCallback = cb || config.callback;
       type = type || config.type || 'audio/wav';
       if (!currCallback) throw new Error('Callback not set');
@@ -65,7 +69,7 @@
       });
     }
 
-    worker.onmessage = function(e){
+    worker.onmessage = function(e) {
       var blob = e.data;
       currCallback(blob);
     }
@@ -85,5 +89,13 @@
   }
 
   window.Recorder = Recorder;
+  // Addendum for recorderjs
+  // taken from RecordRTC
+  navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+  // WebAudio API representer
+  if (!window.AudioContext) {
+      window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+  }
 
 })(window);

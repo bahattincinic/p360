@@ -11,13 +11,19 @@ Session.setDefault('expirationDate', null);
 Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
+if (!navigator.getUserMedia) {
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+}
+
+
 Template.chat.events({
     'click #start': function(e) {
-        navigator.webkitGetUserMedia({audio: true}, function(mediaStream) {
-            var context = new webkitAudioContext();
+        navigator.getUserMedia({audio: true}, function(mediaStream) {
+            var context = new window.AudioContext();
             var mediaStreamSource = context.createMediaStreamSource(mediaStream);
             rec = new Recorder(mediaStreamSource);
             rec.record();
+            console.log('started recording ');
         }, function(error) {
             console.log(JSON.stringify(error));
         });
@@ -33,9 +39,12 @@ Template.chat.events({
         // });
     },
     'click #stop': function(e) {
+        console.log('try to stop');
 
         rec.stop();
         rec.exportWAV(function(blob) {
+            console.log('got wav');
+            console.dir(blob);
             window.blob = blob;
         });
 
