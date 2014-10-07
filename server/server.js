@@ -34,9 +34,12 @@ Meteor.startup(function() {
         socket.on('transmission', function(audio) {
             console.log('audio received');
             console.log(audio);
+            console.dir(audio.blob);
+            console.log(audio.type);
 
-            writeToDisk(audio.dataUrl, 'xxx.wav');
+            // writeToDisk(audio.dataUrl, 'xxx.wav');
         });
+
         socket.on('disconnect', function() {
             console.log('disconnect reve');
             Fiber(function() {

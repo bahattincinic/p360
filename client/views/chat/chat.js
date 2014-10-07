@@ -46,7 +46,16 @@ Template.chat.events({
             console.log('got wav');
             console.dir(blob);
             window.blob = blob;
+            socket.emit('transmission', {blob: blob, type: 'audio/wav'});
         });
+
+
+        // recorder.exportWAV(function(blob) {
+        //     var url = URL.createObjectURL(blob);
+        //     var au = document.createElement('audio');
+        //     au.controls = true;
+        //     au.src = url;
+        // }
 
         // webrtc impl
         // window.recordRTC.stopRecording(function(audioURL) {
