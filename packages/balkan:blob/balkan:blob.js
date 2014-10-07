@@ -1,4 +1,9 @@
 (function(window) {
+  // set getUserMedia first and foremost
+  if (!navigator.getUserMedia) {
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  }
+
   var Recorder = function(source, cfg){
     // read embedded worker code from html
     var blob = new Blob([

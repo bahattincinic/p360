@@ -1,5 +1,4 @@
 var socket;
-window.socket = socket;
 var rec;
 
 // session defaults
@@ -11,9 +10,6 @@ Session.setDefault('expirationDate', null);
 Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
-if (!navigator.getUserMedia) {
-    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-}
 
 Template.chat.events({
     'click #start': function(e) {
@@ -26,35 +22,29 @@ Template.chat.events({
         }, function(error) {
             console.log(JSON.stringify(error));
         });
-
-
-        // webrtc impl
-        // navigator.getUserMedia({audio: true}, function(mediaStream) {
-        //     window.recordRTC = RecordRTC(mediaStream);
-        //     console.log('invoke start recording');
-        //     window.recordRTC.startRecording();
-        // }, function(error) {
-        //     console.log(JSON.stringify(error));
-        // });
     },
     'click #stop': function(e) {
-        console.log('try to stop');
+        console.log('stopping..');
+        /**
+            Stop recording and create a CollectionFS file
+            from blob, then proceed to insert this file
+            to approporiate collection
+        **/
 
         rec.stop();
         rec.exportWAV(function(blob) {
-            console.log('got wav');
             console.dir(blob);
-            // XXX: here
             var fsFile = new FS.File(blob);
             fsFile.owner = Meteor.userId();
-            fsFile.name('recording.wav');
+            var roomId = Session.get('roomId') || '__no_room__';
+            fsFile.name('recording--' + roomId + '.wav');
 
             var audio = Audios.insert(fsFile, function (err) {
                 if (err) {
-                    alertify.error("Audio could not be updated");
+                    alertify.error("Wave could not be recorded");
                     throw new Meteor.Error(err);
                 } else {
-                    alertify.success("Audio  has been updated");
+                    alertify.success("Wave sent..");
                     console.log(audio);
                     console.log(audio._id);
 
@@ -65,32 +55,7 @@ Template.chat.events({
                     });
                 }
             });
-
-            // // companion message for audio file
-
-            // socket.emit('transmission', {blob: blob, type: 'audio/wav'});
         });
-
-
-        // recorder.exportWAV(function(blob) {
-        //     var url = URL.createObjectURL(blob);
-        //     var au = document.createElement('audio');
-        //     au.controls = true;
-        //     au.src = url;
-        // }
-
-        // webrtc impl
-        // window.recordRTC.stopRecording(function(audioURL) {
-        //     console.log('stopped');
-        //     console.log(audioURL);
-        //     mediaElement.src = audioURL;
-        //     var audio = {
-        //         type: 'audio/wav',
-        //         dataUrl: audioURL
-        //     }
-
-        //     socket.emit('transmission', audio);
-        // });
     },
     'click .show_hide': function(e, t){
         $(".settings").stop().slideToggle();
@@ -172,7 +137,6 @@ Template.chat.events({
         }
 
         var fileBuffer = event.target.files[0];
-        console.log(fileBuffer);
         var fsFile = new FS.File(fileBuffer);
         fsFile.owner = Meteor.userId();
         var image = Images.insert(fsFile, function (err) {
@@ -265,6 +229,7 @@ Meteor.startup(function() {
     var origin = window.location.host.split(":")[0];
     var connTarget = origin + ':' + Settings.ioPort;
     socket = io.connect(connTarget);
+    // XXX: to be changed
     Meteor.subscribe('images');
     Meteor.subscribe('audios');
     // user autorun

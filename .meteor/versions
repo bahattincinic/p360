@@ -32,7 +32,6 @@ cfs:worker@0.0.0
 check@1.0.1
 ctl-helper@1.0.3
 ctl@1.0.1
-cwaring:modernizr@0.0.2
 ddp@1.0.9
 deps@1.0.4
 ejson@1.0.3
