@@ -36,7 +36,6 @@ Meteor.startup(function() {
             console.log(audio);
             console.dir(audio.blob);
             console.log(audio.type);
-
             // writeToDisk(audio.dataUrl, 'xxx.wav');
         });
 
@@ -141,13 +140,25 @@ Meteor.startup(function() {
                 var from = Meteor.users.findOne({'_id': session.userId}).username;
                 var to = Meteor.users.findOne({'_id': toSession.userId}).username;
 
-                Messages.insert({
-                    'body': body,
+                var messageId = Messages.insert({
+                    'body': body.body,
                     'createdAt': Date.now(),
                     'from': from,
                     'to': to,
-                    'roomId': room._id
+                    'roomId': room._id,
+                    'type': body.type
                 });
+
+                // check for extra payload here
+                if (body.type === 'audio' && body.payloadId) {
+                    Messages.update({
+                        '_id': messageId
+                    }, {$set: {
+                            'payloadId': body.payloadId,
+                            'type': body.type
+                        }
+                    });
+                }
             }).run();
         });
 
@@ -189,6 +200,14 @@ Meteor.startup(function() {
 
     // TODO: for debugging only, must be removed at production
     return Meteor.methods({
+        la: function() {
+            console.log('Audios: ');
+            var aa = Audios.find().fetch();
+            _.each(aa, function(a) {
+                console.log(a);
+            });
+            console.log('-------------------------------');
+        },
         rm: function() {
             return Messages.remove({});
         },

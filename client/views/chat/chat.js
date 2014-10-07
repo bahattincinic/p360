@@ -15,7 +15,6 @@ if (!navigator.getUserMedia) {
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 }
 
-
 Template.chat.events({
     'click #start': function(e) {
         navigator.getUserMedia({audio: true}, function(mediaStream) {
@@ -45,7 +44,31 @@ Template.chat.events({
         rec.exportWAV(function(blob) {
             console.log('got wav');
             console.dir(blob);
-            socket.emit('transmission', {blob: blob, type: 'audio/wav'});
+            // XXX: here
+            var fsFile = new FS.File(blob);
+            fsFile.owner = Meteor.userId();
+            fsFile.name('recording.wav');
+
+            var audio = Audios.insert(fsFile, function (err) {
+                if (err) {
+                    alertify.error("Audio could not be updated");
+                    throw new Meteor.Error(err);
+                } else {
+                    alertify.success("Audio  has been updated");
+                    console.log(audio);
+                    console.log(audio._id);
+
+                    socket.emit('message', {
+                        body: null,
+                        type: 'audio',
+                        payloadId: audio._id
+                    });
+                }
+            });
+
+            // // companion message for audio file
+
+            // socket.emit('transmission', {blob: blob, type: 'audio/wav'});
         });
 
 
@@ -90,12 +113,15 @@ Template.chat.events({
     'submit #form360': function(e, form) {
         e.preventDefault();
         var body = $.trim(form.find('input[id=input360]').value);
-        if(body){
-            socket.emit('message', body);
+        if (body) {
+            socket.emit('message', {
+                body: body,
+                type: 'text'
+            });
             $('input[id=input360]').val('');
         }
     },
-    'submit #changeForm': function(e, form){
+    'submit #changeForm': function(e, form) {
         e.preventDefault();
         var username =  form.find('#update-username').value;
         var new_password = form.find('#new-password').value;
@@ -107,10 +133,12 @@ Template.chat.events({
                     { '_id': Meteor.userId() },
                     { $set: { 'username': username} }
                 );
+
                 // change new_password
                 if(new_password !== ''){
                      Accounts.setPassword(Meteor.userId(), new_password);
                 }
+
                 alertify.success("Profile has been updated");
             }
         });
@@ -142,15 +170,18 @@ Template.chat.events({
             // empty data
             return false;
         }
-        var fsFile = new FS.File(event.target.files[0]);
+
+        var fileBuffer = event.target.files[0];
+        console.log(fileBuffer);
+        var fsFile = new FS.File(fileBuffer);
         fsFile.owner = Meteor.userId();
         var image = Images.insert(fsFile, function (err) {
-              if (err){
-                alertify.error("Avatar could not be updated");
-                throw err;
-              }else{
-                alertify.success("Avatar has been updated");
-              }
+            if (err) {
+              alertify.error("Avatar could not be updated");
+              throw err;
+            } else {
+              alertify.success("Avatar has been updated");
+            }
         });
 
         var imageId = image._id;
@@ -173,15 +204,11 @@ Template.chat.messages = function() {
         { sort: {createdAt: -1}});
 };
 
-Template.message.hasOwner = function(from){
-    return Meteor.user().username == from;
-};
-
 Template.chat.timeLeft = function() {
     return Session.get('countdown');
 };
 
-Template.chat.getOtherUserAvatar = function(){
+Template.chat.getOtherUserAvatar = function() {
     var ImageId = Session.get('avatarId');
     return Images.findOne({'_id': ImageId});
 }

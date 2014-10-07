@@ -74,6 +74,8 @@
                         {{#if session "typing" }}
                             <li class="typing"><i title="Typing...">typing...</i></li>
                         {{/if}}
+                        <button id='start'>start</button>
+                        <button id='stop'>stop</button>
                     </ul>
                 </div>
                 <div class="nextnext pull-right" style="margin-left:10px">
@@ -133,36 +135,5 @@
             </div>
             </div>
         {{/if}}
-    {{/if}}
-
-    <button id='start'>start</button>
-    <button id='stop'>stop</button>
-</template>
-
-<template name="message">
-    {{#if hasOwner from}}
-        <li class="left clearfix">
-            <span class="chat-img pull-left">
-                <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
-            </span>
-            <div class="chat-body clearfix">
-                <div class="header">
-                    <strong class="primary-font">{{ from }}</strong>
-                </div>
-                <p>{{body}}</p>
-            </div>
-        </li>
-    {{else }}
-        <li class="right clearfix">
-            <span class="chat-img pull-right">
-                <img src="http://placehold.it/50/55C1E7/fff&text=ANON" alt="User Avatar" class="img-circle" />
-            </span>
-            <div class="chat-body clearfix">
-                <div class="header">
-                    <strong class="pull-right primary-font">{{ from }}</strong>
-                </div>
-                <p>{{body}}</p>
-            </div>
-        </li>
     {{/if}}
 </template>
