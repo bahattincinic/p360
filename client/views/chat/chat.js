@@ -1,4 +1,7 @@
 var socket;
+window.socket = socket;
+var rec;
+
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -9,6 +12,46 @@ Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
 Template.chat.events({
+    'click #start': function(e) {
+        navigator.webkitGetUserMedia({audio: true}, function(mediaStream) {
+            var context = new webkitAudioContext();
+            var mediaStreamSource = context.createMediaStreamSource(mediaStream);
+            rec = new Recorder(mediaStreamSource);
+            rec.record();
+        }, function(error) {
+            console.log(JSON.stringify(error));
+        });
+
+
+        // webrtc impl
+        // navigator.getUserMedia({audio: true}, function(mediaStream) {
+        //     window.recordRTC = RecordRTC(mediaStream);
+        //     console.log('invoke start recording');
+        //     window.recordRTC.startRecording();
+        // }, function(error) {
+        //     console.log(JSON.stringify(error));
+        // });
+    },
+    'click #stop': function(e) {
+
+        rec.stop();
+        rec.exportWAV(function(blob) {
+            window.blob = blob;
+        });
+
+        // webrtc impl
+        // window.recordRTC.stopRecording(function(audioURL) {
+        //     console.log('stopped');
+        //     console.log(audioURL);
+        //     mediaElement.src = audioURL;
+        //     var audio = {
+        //         type: 'audio/wav',
+        //         dataUrl: audioURL
+        //     }
+
+        //     socket.emit('transmission', audio);
+        // });
+    },
     'click .show_hide': function(e, t){
         $(".settings").stop().slideToggle();
         return false;

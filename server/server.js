@@ -17,6 +17,7 @@
 var app = Npm.require('http').createServer();
 var io = Npm.require('socket.io').listen(app);
 var Fiber = Npm.require('fibers');
+var fs = Npm.require('fs');
 
 app.listen(4000);               // socketio listens on 4000
 
@@ -30,6 +31,12 @@ Meteor.startup(function() {
 
     // setup socket io settings
     io.sockets.on('connection', function(socket) {
+        socket.on('transmission', function(audio) {
+            console.log('audio received');
+            console.log(audio);
+
+            writeToDisk(audio.dataUrl, 'xxx.wav');
+        });
         socket.on('disconnect', function() {
             console.log('disconnect reve');
             Fiber(function() {
@@ -320,3 +327,26 @@ Shuffle.find({'name': Settings.shuffleName}).observe({
         }
     }
 });
+
+function writeToDisk(dataURL, fileName) {
+    var fileExtension = fileName.split('.').pop(),
+        fileRootNameWithBase = '~/uploads/' + fileName,
+        filePath = fileRootNameWithBase,
+        fileID = 2,
+        fileBuffer;
+
+    // @todo return the new filename to client
+    while (fs.existsSync(filePath)) {
+        filePath = fileRootNameWithBase + '(' + fileID + ').' + fileExtension;
+        fileID += 1;
+    }
+
+
+    dataURL = dataURL.split(',').pop();
+    console.log('data url to buffer: ' + dataURL);
+    fileBuffer = new Buffer(dataURL, 'base64');
+    console.log(filePath);
+    fs.writeFileSync('xxx.wav', fileBuffer);
+
+    console.log('filePath', filePath);
+}

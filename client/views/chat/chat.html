@@ -22,10 +22,6 @@
                             <input class="set_form" id='update-username' value='{{currentUser.username}}' required type="text" placeHolder="Username">
                             <h5>Change Password</h5>
                             <input class="set_form" id='new-password' type="password" placeHolder="New Password">
-
-                            <button type="submit">Save</button>
-                            <button id='logoutAction' style="margin-bottom:10px">Logout</button>
-                            <button class='show_hide' style="margin-bottom:5px">Close</button>
                         </form>
                     </div>
 
@@ -85,8 +81,8 @@
             </div>
                 <form id='form360'>
                     <input type="text" id="input360" placeHolder="Type your message here..." autocomplete='off' />
-                    <input type="file" id='nope' accept="audio/*;capture=microphone">
                 </form>
+
             </div>
         </div>
 
@@ -138,6 +134,9 @@
             </div>
         {{/if}}
     {{/if}}
+
+    <button id='start'>start</button>
+    <button id='stop'>stop</button>
 </template>
 
 <template name="message">
