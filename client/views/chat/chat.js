@@ -45,7 +45,6 @@ Template.chat.events({
         rec.exportWAV(function(blob) {
             console.log('got wav');
             console.dir(blob);
-            window.blob = blob;
             socket.emit('transmission', {blob: blob, type: 'audio/wav'});
         });
 
