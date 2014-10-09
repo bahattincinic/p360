@@ -6,7 +6,7 @@ var recLength = 0,
   sampleRate;
 
 onmessage = function(e) {
-  console.log('hele vele');
+  console.log('worker onmessage');
   switch(e.data.command){
     case 'init':
       init(e.data.config);
