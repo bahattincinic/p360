@@ -3,7 +3,6 @@ Template.message.hasOwner = function (from) {
 };
 
 Template.messageBody.isAudio = function () {
-    console.log(this.type);
     return this.type === 'audio';
 };
 
