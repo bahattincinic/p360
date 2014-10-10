@@ -1,9 +1,11 @@
 import os
+from datetime import datetime
 from fabric.api import run, env, cd, task, prefix
 from fabric.colors import (green, red, cyan, magenta, yellow)
 from fabric.contrib.files import exists
 from fabric.network import disconnect_all
 from fabric.operations import put, sudo
+from fabric.context_managers import settings, hide
 
 env.use_ssh_config = True
 
@@ -31,7 +33,16 @@ class Deploy(object):
                 print green('no old file')
 
             print green('bundle up..')
-            run('meteor bundle %s' % self.tgz)
+
+            try:
+                with settings(hide('warnings', 'running', 'stdout', 'stderr'), warn_only=True):
+                    name = datetime.strftime(datetime.now(), '%Y_%m_%d__%H_%M')
+                    command = 'docker run --rm  --name %(name)s -v ~/workspace/360:/opt/application  p360/meteor meteor bundle 360.tgz' % {'name': name}
+                    print command
+                    sudo(command)
+            except:
+                print red('make sure meteor docker image exists')
+                raise
 
     def extract(self):
         # check extracted
@@ -42,6 +53,7 @@ class Deploy(object):
             print green('extracting..')
             run('tar xfz %(bundle)s -C %(dockerApp)s' % {'bundle': self.tgz, 'dockerApp': self.appdir})
             print cyan('remove bundle file %s' % self.tgz)
+            os.chmod(self.tgz, 0777)
             os.remove(self.tgz)
 
     def build(self):
