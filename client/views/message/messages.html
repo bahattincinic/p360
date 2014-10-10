@@ -30,11 +30,8 @@
     <p>{{ type }}</p>
     <p>{{ body }}</p>
     {{#if isAudio }}
-        <span>Audio</span>
-        {{#with audioMessage audioId }}
-            <audio src="{{audioMessage.url store='audios'}}" controls></audio>
+        {{#with audioMessage payloadId }}
+            <audio src="{{url store='audios'}}" controls></audio>
         {{/with}}
-    {{ else }}
-        <span>Text</span>
     {{/if}}
 </template>

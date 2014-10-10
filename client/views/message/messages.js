@@ -8,6 +8,5 @@ Template.messageBody.isAudio = function () {
 };
 
 Template.messageBody.audioMessage = function (audioId) {
-    console.log(audioId);
     return Audios.findOne({'_id': audioId});
 };

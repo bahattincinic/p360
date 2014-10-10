@@ -297,6 +297,10 @@ Meteor.publish('images', function() {
     return Images.find({});
 });
 
+Meteor.publish('audios', function() {
+    return Audios.find({});
+});
+
 Shuffle.find({'name': Settings.shuffleName}).observe({
     changed: function (newDocument, oldDocument) {
         var shuffle = Shuffle.findOne({'name': Settings.shuffleName});

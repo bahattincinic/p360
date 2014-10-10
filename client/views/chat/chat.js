@@ -266,6 +266,7 @@ Meteor.startup(function() {
     var connTarget = origin + ':' + Settings.ioPort;
     socket = io.connect(connTarget);
     Meteor.subscribe('images');
+    Meteor.subscribe('audios');
     // user autorun
     Tracker.autorun(function() {
         if (Meteor.user()) {
