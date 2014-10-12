@@ -28,7 +28,6 @@
                             <button class='show_hide' style="margin-bottom:5px">Close</button>
                         </form>
                     </div>
-
                 </div>
 
                 <div class="logo  text-center">
@@ -37,8 +36,8 @@
             </div>
         </div>
     </header>
-    {{#if session "talking"}}
 
+    {{#if session "talking"}}
     <div class="container">
         <div class="row ">
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 col-centered">
@@ -78,17 +77,25 @@
                         {{#if session "typing" }}
                             <li class="typing"><i title="Typing...">typing...</i></li>
                         {{/if}}
-                        <button id='start'>start</button>
-                        <button id='stop'>stop</button>
+
+                        {{#if recording }}
+                            <button id='stop'>stop</button>
+                        {{else}}
+                            <button id='start'>start</button>
+                        {{/if}}
                     </ul>
                 </div>
                 <div class="nextnext pull-right" style="margin-left:10px">
                 <button class="next_button" id='next'>Next</button>
             </div>
+            <canvas id='analyser' style='display: {{ canvasDisplay }}'></canvas>
+
+            {{#if recording }}
+            {{else}}
                 <form id='form360'>
                     <input type="text" id="input360" placeHolder="Type your message here..." autocomplete='off' />
                 </form>
-
+            {{/if}}
             </div>
         </div>
 

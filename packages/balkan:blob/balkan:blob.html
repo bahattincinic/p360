@@ -6,7 +6,8 @@ var recLength = 0,
   sampleRate;
 
 onmessage = function(e) {
-  switch(e.data.command){
+  console.log('command: ' + e.data.command);
+  switch(e.data.command) {
     case 'init':
       init(e.data.config);
       break;
@@ -36,7 +37,6 @@ function record(inputBuffer){
 }
 
 function exportWAV(type){
-  console.log('worker:exporting wav..');
   var bufferL = mergeBuffers(recBuffersL, recLength);
   var bufferR = mergeBuffers(recBuffersR, recLength);
   var interleaved = interleave(bufferL, bufferR);

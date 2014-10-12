@@ -1,11 +1,12 @@
 (function(window) {
+
   // set getUserMedia first and foremost
   if (!navigator.getUserMedia) {
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
   }
 
-  var Recorder = function(source, cfg){
-    // read embedded worker code from html
+  var Recorder = function(source, cfg, recording) {
+    // read embedded worker code from blob.html
     var blob = new Blob([
       document.querySelector("script[type=\"text\/worker\"]").textContent
       ], {type: "text/javascript"});
@@ -23,11 +24,11 @@
         sampleRate: this.context.sampleRate
       }
     });
-    var recording = false,
-      currCallback;
+
+    var currCallback;
 
     this.node.onaudioprocess = function(e){
-      if (!recording) return;
+      if (!recording.getRecording()) return;
       worker.postMessage({
         command: 'record',
         buffer: [
@@ -37,23 +38,23 @@
       });
     }
 
-    this.configure = function(cfg){
-      for (var prop in cfg){
-        if (cfg.hasOwnProperty(prop)){
+    this.configure = function(cfg) {
+      for (var prop in cfg) {
+        if (cfg.hasOwnProperty(prop)) {
           config[prop] = cfg[prop];
         }
       }
     }
 
-    this.record = function(){
-      recording = true;
+    this.record = function() {
+      recording.setRecording(true);
     }
 
-    this.stop = function(){
-      recording = false;
+    this.stop = function() {
+      recording.setRecording(false);
     }
 
-    this.clear = function(){
+    this.clear = function() {
       worker.postMessage({ command: 'clear' });
     }
 
@@ -63,7 +64,6 @@
     }
 
     this.exportWAV = function(cb, type) {
-      console.log('making call to worker');
       currCallback = cb || config.callback;
       type = type || config.type || 'audio/wav';
       if (!currCallback) throw new Error('Callback not set');

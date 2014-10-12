@@ -1,6 +1,7 @@
-var socket;
-var rec;
-
+var socket;                     // clients socket.io end
+var rec = null;                 // main recording device
+var recStat = new Recording;
+//
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -10,27 +11,40 @@ Session.setDefault('expirationDate', null);
 Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
+// for recording
+var audioContext = new window.AudioContext();   // get audioContext
+var inputPoint = null;                          // for recording
+var mediaStreamSource = null;                   // for recording
 
 Template.chat.events({
     'click #start': function(e) {
-        navigator.getUserMedia({audio: true}, function(mediaStream) {
-            var context = new window.AudioContext();
-            var mediaStreamSource = context.createMediaStreamSource(mediaStream);
-            rec = new Recorder(mediaStreamSource);
-            rec.record();
-            console.log('started recording ');
+        /**
+            Set for audio recording
+            requesting permission from the user
+        **/
+        navigator.getUserMedia({audio: true},
+            function(mediaStream) {
+                inputPoint = audioContext.createGain();
+                mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+                mediaStreamSource.connect(inputPoint);
+                // analyser
+                analyserNode = audioContext.createAnalyser();
+                analyserNode.fftsize = 2048;
+                inputPoint.connect(analyserNode);
+                // create recorder
+                rec = new Recorder(mediaStreamSource, {}, recStat);
+                rec.clear();
+                rec.record();
         }, function(error) {
             console.log(JSON.stringify(error));
         });
     },
     'click #stop': function(e) {
-        console.log('stopping..');
         /**
             Stop recording and create a CollectionFS file
             from blob, then proceed to insert this file
             to approporiate collection
         **/
-
         rec.stop();
         rec.exportWAV(function(blob) {
             console.dir(blob);
@@ -46,7 +60,6 @@ Template.chat.events({
                 } else {
                     alertify.success("Wave sent..");
                     console.log(audio);
-                    console.log(audio._id);
 
                     socket.emit('message', {
                         body: null,
@@ -131,7 +144,7 @@ Template.chat.events({
         socket.emit('sound', newSound);
     },
     'change .avatarInput': function(event, template) {
-        if(event.target.files.length == 0){
+        if (event.target.files.length == 0) {
             // empty data
             return false;
         }
@@ -158,6 +171,19 @@ Template.chat.events({
 
     }
 });
+
+Template.chat.canvasDisplay = function() {
+    if (recStat.getRecording()) {
+        return 'inline';
+    } else {
+        return 'none';
+    }
+};
+
+Template.chat.recording = function() {
+    // return Session.get('recording');
+    return recStat.getRecording();
+};
 
 Template.chat.rendered = function() {
     $.backstretch("destroy");
@@ -213,6 +239,17 @@ Tracker.autorun(function() {
     }
 });
 
+
+// recording autorun
+Tracker.autorun(function() {
+    if (recStat.getRecording()) {
+        // wait for analyser element to be available on dom
+        Meteor.setTimeout(updateAnalysers, 250);
+    } else {
+        cancelAnalyserUpdates();
+    }
+});
+
 // sound autorun
 Tracker.autorun(function() {
     if (Meteor.user() && Session.get('sound') && Session.get('roomId')) {
@@ -234,6 +271,12 @@ Meteor.startup(function() {
     Meteor.subscribe('audios');
     // user autorun
     Tracker.autorun(function() {
+        /**
+            This autorun reruns everytime
+            any of the subscription is updated
+            i.e. started talking with another person,
+            other person disconnects, etc..
+        */
         if (Meteor.user()) {
             Meteor.subscribe('users', Session.get('roomId'));
             Meteor.users.find({'_id': {$ne: Meteor.userId()}}).observe({
@@ -284,7 +327,6 @@ Meteor.startup(function() {
                         Session.set('roomId', newDocument.room);
                     } else {
                         Session.set('roomId', null);
-
                     }
 
                     Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){
