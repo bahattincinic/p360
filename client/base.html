@@ -1,0 +1,32 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat Project</title>
+</head>
+
+<body>
+    {{> index }}
+</body>
+
+<template name="index">
+    {{#if session "ready"}}
+        {{#if currentUser }}
+            {{> home}}
+        {{else}}
+            {{> login}}
+        {{/if}}
+    {{ else }}
+        {{> loading }}
+    {{/if}}
+</template>
+
+<template name="loading">
+    <div id="content">
+     <div class="container-fluid">
+        <div class="text-center searchingIconBar">
+            <i class="fa fa-compass fa-20x searchingIcon rotating"></i>
+        </div>
+     </div>
+    </div>
+</template>

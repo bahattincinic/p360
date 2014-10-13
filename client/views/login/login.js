@@ -1,26 +1,13 @@
+Session.setDefault('ready', false);
+
 Template.login.events({
     'submit #login-form': function(e, t) {
         e.preventDefault();
         username = t.find('#account-username').value;
         secret = t.find('#account-secret').value;
-        console.log('login ' + username + ":" + secret);
 
         Meteor.loginWithPassword(username, secret, function(error) {
-            if (!error){
-                // login
-                return false;
-            }
-
-            throw error;
-            console.log('check username');
-
-            // check password
             Meteor.call('checkUsername', username, function(err, result){
-                if (err)  {
-                    throw err;
-                    return;
-                }
-
                 if (result){
                     alertify.error("Error username is being used / username or passord invalid");
                     t.find('#account-username').value = '';
@@ -40,9 +27,6 @@ Template.login.events({
     }
 });
 
-Template.login.rendered = function() {
-      $.backstretch([
-            "slide/slide-1.jpg",
-            "slide/slide-2.jpg"
-      ], {duration: 3000, fade: 750});
+Template.index.rendered = function () {
+    Session.set('ready', true);
 };

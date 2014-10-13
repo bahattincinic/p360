@@ -1,0 +1,135 @@
+/*
+ * Login Form
+*/
+.loginBar {
+    max-width: 800px !important;
+}
+
+.loginBar .container-fluid {
+    margin-top: 21%;
+}
+
+.loginBar .container-fluid .siteSummary {
+    width: 429px !important;
+    float: left !important;
+}
+
+.loginBar .container-fluid .siteSummary h1 {
+    color: #FFF !important;
+}
+
+.loginBar .container-fluid .siteSummary p {
+    color: #FFF !important;
+    font-size: 15px !important;
+}
+
+.loginBar .container-fluid .lock-container {
+    float: left !important;
+    position: inherit !important;
+    margin-left: 30px !important;
+}
+
+.loginBar .container-fluid .lock-container .panel {
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .loginBar .container-fluid {
+        margin-left: 20%;
+    }
+}
+
+@media (max-width: 570px) {
+    .loginBar .container-fluid {
+        margin-left: 10%;
+    }
+}
+
+@media (max-width: 480px) {
+    .loginBar .container-fluid {
+        margin-left: 0%;
+    }
+    .loginBar .container-fluid .siteSummary {
+        width: 300px !important;
+        text-align: center;
+        margin-left: 30px;
+    }
+}
+
+/*
+ * Update Profile Form
+*/
+#updateProfile {
+    display: none !important;
+}
+
+.show-updatemenu #updateProfile {
+    display: block !important;
+}
+
+.navbar-fixed-top {
+    left: 0px !important;
+}
+
+#updateForm {
+    background-color: #303030 !important;
+    border-color: #303030 !important;
+}
+
+#updateForm .control-label {
+    color: #f6f6f6 !important;
+    width: 55%;
+    text-align: left;
+}
+
+#updateForm .form-input {
+    float: none;
+    width: 100%
+}
+
+#updateForm .form-file {
+    background-color: #303030 !important;
+    color: #FFF !important;
+    border-color: #303030 !important;
+    padding-left: 0px !important;
+}
+
+.showMenu {
+    margin-left: 250px !important;
+}
+
+.chatAvatar {
+      border-radius: 50%;
+  -webkit-box-shadow: 0 5px 1px #dddddd;
+          box-shadow: 0 5px 1px #dddddd;
+  margin-bottom: 10px;
+  margin-left: 36%;
+  margin-top: 20px;
+}
+
+
+/*
+ * Searching
+ */
+
+ .searchingIconBar {
+    margin-top: 100px;
+    cursor: pointer;
+ }
+
+ .searchingIconBar i {
+    color: #e7e7e7 !important;
+ }
+
+@-webkit-keyframes rotating {
+    from{
+        -webkit-transform: rotate(0deg);
+    }
+    to{
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+ .rotating {
+    -webkit-animation: rotating 2s linear infinite;
+}

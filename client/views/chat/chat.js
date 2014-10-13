@@ -9,24 +9,12 @@ Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
 Template.chat.events({
-    'click .show_hide': function(e, t){
-        $(".settings").stop().slideToggle();
-        return false;
-    },
     'keydown #input360': _.throttle(function(e, t) {
         socket.emit('typing', true);
     }, 750, {trailing: false}),
     'keyup #input360' : _.debounce(function(e, t) {
         socket.emit('typing', false);
     }, 1500, false),
-    'click #logoutAction': function(e, t){
-        Meteor.logout(function(err){
-            if(!err && socket) {
-                socket.emit('loggedOut');
-            }
-        })
-        return false;
-    },
     'submit #form360': function(e, form) {
         e.preventDefault();
         var body = $.trim(form.find('input[id=input360]').value);
@@ -34,26 +22,6 @@ Template.chat.events({
             socket.emit('message', body);
             $('input[id=input360]').val('');
         }
-    },
-    'submit #changeForm': function(e, form){
-        e.preventDefault();
-        var username =  form.find('#update-username').value;
-        var new_password = form.find('#new-password').value;
-        Meteor.call('checkUsername', username, function(err, result){
-            if(result && Meteor.user().username != username){
-                alertify.error("username already exists");
-            }else{
-                Meteor.users.update(
-                    { '_id': Meteor.userId() },
-                    { $set: { 'username': username} }
-                );
-                // change new_password
-                if(new_password !== ''){
-                     Accounts.setPassword(Meteor.userId(), new_password);
-                }
-                alertify.success("Profile has been updated");
-            }
-        });
     },
     'click #next': function(e, t) {
 
@@ -76,36 +44,12 @@ Template.chat.events({
     'click #changeSound': function(){
         var newSound = !Session.get('sound');
         socket.emit('sound', newSound);
-    },
-    'change .avatarInput': function(event, template) {
-        if(event.target.files.length == 0){
-            // empty data
-            return false;
-        }
-        var fsFile = new FS.File(event.target.files[0]);
-        fsFile.owner = Meteor.userId();
-        var image = Images.insert(fsFile, function (err) {
-              if (err){
-                alertify.error("Avatar could not be updated");
-                throw err;
-              }else{
-                alertify.success("Avatar has been updated");
-              }
-        });
-
-        var imageId = image._id;
-
-        Meteor.users.update({'_id': Meteor.userId()},
-            {$set : {'avatarId': imageId}},
-            function(err) {
-                if (err) throw err;}
-        );
-
     }
 });
 
+
 Template.chat.rendered = function() {
-    $.backstretch("destroy");
+    $('body').removeClass('login');
 };
 
 Template.chat.messages = function() {
@@ -132,11 +76,6 @@ Template.chat.getOtherUser = function(){
         return guy[0];
     }
     return 'anonim';
-}
-
-Template.chat.getUserAvatar = function(){
-    var user = Meteor.users.findOne({'_id': Meteor.userId()});
-    return Images.findOne({'_id': user.avatarId});
 }
 
 Handlebars.registerHelper('session',function(input){
