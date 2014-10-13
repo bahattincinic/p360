@@ -31,7 +31,6 @@ ee.on('timeout', function(roomId) {
             Rooms.update({'_id': roomId},
                 {$inc: {'countdown': -1}});
             var room = Rooms.findOne({'_id': room._id});
-            console.log('countdown:room: ' + room.countdown + ":" + room._id);
         }
     }, 1000);
 

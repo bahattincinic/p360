@@ -11,7 +11,6 @@
 
  TODO: karsidaki adam cikinca digeri isTalking=false, isSearching=true olucak
        room kapanacak.
-
 */
 
 var app = Npm.require('http').createServer();
