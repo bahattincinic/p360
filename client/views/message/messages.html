@@ -27,7 +27,7 @@
 </template>
 
 <template name="messageBody">
-    <p>{{#emoji}} {{ body }} {{/emoji}} </p>
+    <p>{{ body }}</p>
     {{#if isAudio }}
         {{#with audioMessage payloadId }}
             <audio src="{{url store='audios'}}" controls></audio>

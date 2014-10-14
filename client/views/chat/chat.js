@@ -225,6 +225,11 @@ Tracker.autorun(function() {
     if (Session.get('roomId')) {
         // sub to this room messages
         Meteor.subscribe('messages', Session.get('roomId'));
+        Messages.find().observe({
+            added: function (document) {
+                Meteor.setTimeout(function() { emojify.run(); }, 100);
+            }
+        });
         // sub to this room
         Meteor.subscribe('rooms', Session.get('roomId'));
 
@@ -269,6 +274,12 @@ Meteor.startup(function() {
     // XXX: to be changed
     Meteor.subscribe('images');
     Meteor.subscribe('audios');
+    // configure emojify
+    emojify.setConfig({
+        only_crawl_id    : 'smirk', // only for this #element
+        img_dir          : 'packages/balkan_emojify/images/emoji' // image dir
+    });
+
     // user autorun
     Tracker.autorun(function() {
         /**
