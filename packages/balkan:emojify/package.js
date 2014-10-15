@@ -429,7 +429,6 @@ Package.onUse(function(api) {
     'ghost',
     'clock11',
     'scroll',
-    '._1234',
     'speak_no_evil',
     'curry',
     'notes',
