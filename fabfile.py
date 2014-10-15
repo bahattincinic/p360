@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from datetime import datetime
 from fabric.api import run, env, cd, task, prefix
