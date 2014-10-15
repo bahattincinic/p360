@@ -109,6 +109,33 @@
 
 
 /*
+ * Chat
+ */
+.profile-icons {
+    width: 93% !important;
+}
+
+.pointer_btn {
+    cursor: pointer !important;
+}
+
+.next_chat {
+    float: right;
+}
+
+.change_sound {
+    float: right;
+}
+
+@media (max-width: 768px) {
+    .messages-container .media-body {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+
+/*
  * Searching
  */
 

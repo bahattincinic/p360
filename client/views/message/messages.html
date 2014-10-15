@@ -1,0 +1,34 @@
+<template name='message'>
+        <div class="media">
+            <div class="pull-{{#if hasOwner from}}right{{else}}left{{/if}} media-object">
+                {{#if hasOwner from}}
+                    {{#if getUserAvatar }}
+                        <img src="{{getUserAvatar.url store='images'}}" width="60" alt=""/>
+                    {{ else }}
+                        <img src="images/default.jpg" width="60" alt=""/>
+                    {{/if}}
+                {{else}}
+                    {{#if session "avatarId" }}
+                        <img src="url({{getOtherUserAvatar.url store='images'}})" width="60" alt="">
+                    {{ else }}
+                        <img src="images/default.jpg" width="60" alt="">
+                    {{/if}}
+                {{/if}}
+            </div>
+            <div class="media-body message">
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-heading-white">
+                        <a href="#">{{ from }}</a>
+                    </div>
+                    <div class="panel-body">
+                        {{> messageBody }}
+                    </div>
+                </div>
+            </div>
+        </div>
+</template>
+
+
+<template name="messageBody">
+    {{ body }}
+</template>

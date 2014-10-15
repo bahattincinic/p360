@@ -15,16 +15,15 @@ Template.chat.events({
     'keyup #input360' : _.debounce(function(e, t) {
         socket.emit('typing', false);
     }, 1500, false),
-    'submit #form360': function(e, form) {
+    'submit #form360, click #messageSend': function(e, form) {
         e.preventDefault();
-        var body = $.trim(form.find('input[id=input360]').value);
+        var body = $.trim($('input[id=input360]').val());
         if(body){
             socket.emit('message', body);
             $('input[id=input360]').val('');
         }
     },
     'click #next': function(e, t) {
-
         // can leave only when talking
         if (Session.get('talking')) {
             socket.emit('leave');
@@ -32,7 +31,7 @@ Template.chat.events({
         }
     },
     // starts searching for a room
-    'click .ping': function() {
+    'click #ping': function() {
         if (Session.get('talking')) return;
         Meteor.call('startSearching', Meteor.user()._id);
     },
@@ -46,11 +45,6 @@ Template.chat.events({
         socket.emit('sound', newSound);
     }
 });
-
-
-Template.chat.rendered = function() {
-    $('body').removeClass('login');
-};
 
 Template.chat.messages = function() {
     return Messages.find({"roomId": Session.get('roomId')},
@@ -168,9 +162,10 @@ Meteor.startup(function() {
                     // if session has room then subscribe to id
                     if (newDocument.room) {
                         Session.set('roomId', newDocument.room);
+                        $('body').removeClass('login');
                     } else {
                         Session.set('roomId', null);
-
+                        $('body').addClass('login');
                     }
 
                     Meteor.call('getOtherUserAvatar', Meteor.userId(), function(err, imageId){

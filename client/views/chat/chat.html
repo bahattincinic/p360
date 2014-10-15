@@ -1,8 +1,100 @@
 <template name="chat">
+    <audio id='soundNot' src="sounds/sound.mp3" preload="auto"></audio>
+    <div class="container-fluid">
 
-</template>
+    {{#if session "talking"}}
+        <div class="panel panel-default profile">
+            <div class="cover-container"></div>
+            <div class="info">
+                <h4>{{ getOtherUser.username }}</h4>
+            </div>
 
+            {{#if session "avatarId" }}
+                <img src="{{getOtherUserAvatar.url store='images'}}" width="116" height="116" alt="" class="img-circle avatar">
+            {{ else }}
+                <img src="images/default.jpg" alt="" width="116" height="116" class="img-circle avatar">
+            {{/if}}
 
-<template name="message">
+            <div class="profile-icons">
 
+                {{#if session "typing" }}
+                    <span class='typing'>
+                        <i class="fa fa-comment"></i> typing...
+                    </span>
+                {{/if}}
+
+                <span class="next_chat pointer_btn" id='next'>
+                    <i class="fa fa-chevron-circle-right"></i> Next
+                </span>
+
+                {{#if session "sound" }}
+                    <span id='changeSound' class="pointer_btn change_sound">
+                        <i class="fa fa-bell-o"></i> Sound Active
+                    </span>
+                {{ else }}
+                    <span id='changeSound' class="pointer_btn change_sound">
+                        <i class="fa fa-bell-slash-o"></i> Sound Passive
+                    </span>
+                {{/if}}
+            </div>
+            <a href="#" class="btn btn-brand-primary pull-right">
+                <span class="second">
+                    {{#if timeLeft }}{{ timeLeft }}{{ else }}   ∭  {{/if}}
+                </span>
+                <strong id="string_seconds">seconds</strong>
+            </a>
+        </div>
+
+        <!-- Chat -->
+        <div class="media messages-container">
+            <div class="media-body">
+                <div class="panel panel-default share">
+                    <form id="form360">
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <a class="btn btn-primary" href="#" id="messageSend">
+                                    <i class="fa fa-envelope"></i>
+                                    Send
+                                </a>
+                            </div>
+                            <input type="text" id='input360' class="form-control share-text"
+                                   placeholder="Type your message here..."/>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Media -->
+                {{#with messages}}
+                    {{#if count}}
+                        {{#each messages}}
+                            {{>message}}
+                        {{/each}}
+                    {{/if}}
+                {{/with}}
+            </div>
+        </div>
+    {{ else }}
+        <div class="text-center searchingIconBar">
+            {{#if session "searching" }}
+                <i class="fa fa-compass fa-20x searchingIcon rotating" id="don"></i>
+            {{ else }}
+                <i class="fa fa-compass fa-20x searchingIcon" id="ping"></i>
+            {{/if}}
+        </div>
+        <div class="text-center">
+            {{#if session "searching" }}
+                <button class="btn btn-default btn-icon-stacked" id="don" style="height: 58px">
+                    <i class="fa fa-2x fa-random"></i>
+                    <span class="startBtnText" id="don">Searching...</span>
+                </button>
+            {{ else }}
+                <button class="btn btn-default btn-icon-stacked" id="ping" style="height: 58px">
+                    <i class="fa fa-2x fa-random"></i>
+                    <span class="startBtnText" id="ping">Discover Live Chat</span>
+                </button>
+            {{/if}}
+        </div>
+    {{/if}}
+
+    </div>
 </template>

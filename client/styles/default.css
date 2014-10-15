@@ -14663,10 +14663,8 @@ ul.friends-list li:nth-child(6n) {
 .messages-container .media-body .panel-body {
   padding-top: 0;
 }
-.messages-container .media-body .media:nth-child(odd) {
+.messages-container .media-body {
   margin-left: 100px;
-}
-.messages-container .media-body .media:nth-child(even) {
   margin-right: 100px;
 }
 @media (max-width: 480px) {
