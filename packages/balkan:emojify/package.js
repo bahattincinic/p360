@@ -893,7 +893,7 @@ Package.onUse(function(api) {
     'busstop'];
 
     files.forEach(function (name) {
-        api.add_files('images/emoji/' + name + '.png', 'client');
+        api.add_files('images/emoji/' + name + '.png', 'client', {isAsset: true});
     });
 });
 
