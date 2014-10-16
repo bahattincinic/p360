@@ -11,4 +11,5 @@ raix:eventemitter
 cfs:standard-packages
 cfs:filesystem
 bahattincinic:meteor-alertify
+balkan:emojify
 
