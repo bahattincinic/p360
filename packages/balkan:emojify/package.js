@@ -12,7 +12,7 @@ Package.onUse(function(api) {
 
     var fs = Npm.require("fs"),
         path = Npm.require("path"),
-        imagesDir = 'images/emoji';
+        imagesDir = 'packages/balkan:emojify/images/emoji/';
     fs.readdir(imagesDir, function (err, files) {
         if (err)
           throw err;
