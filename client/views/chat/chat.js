@@ -81,6 +81,11 @@ Tracker.autorun(function() {
     if (Session.get('roomId')) {
         // sub to this room messages
         Meteor.subscribe('messages', Session.get('roomId'));
+        Messages.find().observe({
+            added: function (document) {
+                Meteor.setTimeout(function() { emojify.run(); }, 100);
+            }
+        });
         // sub to this room
         Meteor.subscribe('rooms', Session.get('roomId'));
 
