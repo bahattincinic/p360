@@ -112,6 +112,12 @@ Meteor.startup(function() {
     var connTarget = origin + ':' + Settings.ioPort;
     socket = io.connect(connTarget);
     Meteor.subscribe('images');
+
+    // configure emojify
+    emojify.setConfig({
+        only_crawl_id    : 'smirk', // only for this #element
+        img_dir          : 'packages/balkan_emojify/images/emoji' // image dir
+    });
     // user autorun
     Tracker.autorun(function() {
         if (Meteor.user()) {
