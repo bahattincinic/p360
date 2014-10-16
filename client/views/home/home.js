@@ -28,8 +28,12 @@ Template.home.events({
     },
     'submit #changeForm': function(e, form){
         e.preventDefault();
-        var username =  form.find('#update-username').value;
+        var username =  $.trim(form.find('#update-username').value);
         var new_password = form.find('#new-password').value;
+        if(username == ''){
+            alertify.error("Username must not bi empty");
+            return false;
+        }
         Meteor.call('checkUsername', username, function(err, result){
             if(result && Meteor.user().username != username){
                 alertify.error("username already exists");

@@ -16,8 +16,14 @@ Template.login.events({
     },
     'submit #register-form': function(e, t){
         e.preventDefault();
-        username = t.find('#register-username').value;
-        password = t.find('#register-secret').value;
+        username = $.trim(t.find('#register-username').value);
+        password = $.trim(t.find('#register-secret').value);
+        if(username == '' || password == ''){
+            alertify.error("Username or password is empty");
+            t.find('#register-username').value = '';
+            t.find('#register-secret').value = '';
+            return false;
+        }
         Meteor.call('checkUsername', username, function(err, result){
             if (result){
                 alertify.error("Username already in use");
