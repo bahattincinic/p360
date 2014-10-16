@@ -1,18 +1,15 @@
 Template.home.events({
     'click .updateMenu': function(e, t){
+        var width = $(window).width();
         if($('body').hasClass('show-updatemenu')){
+            $('#account-bar').show();
             $('body').removeClass('show-updatemenu');
-            $('.navbar-fixed-top').css('left', '0px');
-            if(e.currentTarget.getAttribute('data-toogle') == 'mobile-menu'){
-                $('.navbar-fixed-top').css('margin-left', '0px');
-                $('#account-bar').show();
-            }else {
-                $('#content').removeClass('showMenu');
-            }
+            $('.navbar-fixed-top').css('margin-left', '0px');
+            $('#content').removeClass('showMenu');
         }else{
             $('body').addClass('show-updatemenu');
             $('.navbar-fixed-top').css('left', '250px');
-            if(e.currentTarget.getAttribute('data-toogle') == 'mobile-menu'){
+            if(width <= 768){
                 $('.navbar-fixed-top').css('margin-left', '250px');
                 $('#account-bar').hide();
             }else {
