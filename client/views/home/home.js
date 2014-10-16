@@ -19,8 +19,8 @@ Template.home.events({
     },
     'click #logoutAction': function(e, t){
         Meteor.logout(function(err){
-            if(!err && socket) {
-                socket.emit('loggedOut');
+            if(!err && Meteor.socket) {
+                Meteor.socket.emit('loggedOut');
                 $('body').addClass('login');
             }
         })
@@ -67,6 +67,8 @@ Template.home.events({
             function(err) {
                 if (err) throw err;}
         );
+        // clean input
+        $('#avatarInput').val('');
     }
 });
 

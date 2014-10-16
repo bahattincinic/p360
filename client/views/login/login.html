@@ -6,17 +6,32 @@
                 <p>Connect with your friends — and other fascinating people. Get in-the-moment updates on the things that interest you. And watch events unfold, in real time, from every angle.</p>
             </div>
             <div class="lock-container">
+                <!-- Login Form -->
                 <div class="panel panel-default text-center">
                     <div class="panel-body">
                         <form id='login-form'>
-                            <input class="form-control" id="account-username" type="text" required placeholder="Username">
-                            <input class="form-control" id="account-secret" type="password" required placeholder="Enter Password">
+                            <input class="form-control" id="account-username" autocomplete='off' type="text" required placeholder="Username">
+                            <input class="form-control" id="account-secret" autocomplete='off' type="password" required placeholder="Enter Password">
                             <button type="submit" class="btn btn-primary">
-                                Login <i class="fa fa-fw fa-unlock-alt"></i>
+                                <i class="fa fa-fw fa-unlock-alt"></i> Sign in
                             </button>
                         </form>
                     </div>
                 </div>
+
+                <!-- Register Form -->
+                <div class="panel panel-default text-center">
+                    <div class="panel-body">
+                        <form id='register-form'>
+                            <input class="form-control" id="register-username" autocomplete='off' type="text" required placeholder="Username">
+                            <input class="form-control" id="register-secret" autocomplete='off' type="password" required placeholder="Enter Password">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-fw fa-user"></i> Sign up for ChatProject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

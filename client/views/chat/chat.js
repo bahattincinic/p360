@@ -1,4 +1,3 @@
-var socket;
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -10,23 +9,23 @@ Session.setDefault('countdown', Settings.countdown);
 
 Template.chat.events({
     'keydown #input360': _.throttle(function(e, t) {
-        socket.emit('typing', true);
+    Meteor.socket.emit('typing', true);
     }, 750, {trailing: false}),
     'keyup #input360' : _.debounce(function(e, t) {
-        socket.emit('typing', false);
+    Meteor.socket.emit('typing', false);
     }, 1500, false),
     'submit #form360, click #messageSend': function(e, form) {
         e.preventDefault();
         var body = $.trim($('input[id=input360]').val());
         if(body){
-            socket.emit('message', body);
+        Meteor.socket.emit('message', body);
             $('input[id=input360]').val('');
         }
     },
     'click #next': function(e, t) {
         // can leave only when talking
         if (Session.get('talking')) {
-            socket.emit('leave');
+        Meteor.socket.emit('leave');
             $('#next').toggleClass("yanyan");
         }
     },
@@ -42,7 +41,7 @@ Template.chat.events({
     },
     'click #changeSound': function(){
         var newSound = !Session.get('sound');
-        socket.emit('sound', newSound);
+    Meteor.socket.emit('sound', newSound);
     }
 });
 
@@ -115,7 +114,7 @@ Tracker.autorun(function() {
 Meteor.startup(function() {
     var origin = window.location.host.split(":")[0];
     var connTarget = origin + ':' + Settings.ioPort;
-    socket = io.connect(connTarget);
+    Meteor.socket = io.connect(connTarget);
     Meteor.subscribe('images');
 
     // configure emojify
@@ -154,7 +153,7 @@ Meteor.startup(function() {
                 }
             });
 
-            socket.emit('loggedIn', Meteor.user()._id);
+        Meteor.socket.emit('loggedIn', Meteor.user()._id);
             Meteor.subscribe('sessions', Meteor.user()._id);
             Sessions.find({'userId': Meteor.user()._id}).observe({
                 added: function (document) {
