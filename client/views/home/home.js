@@ -5,6 +5,7 @@ Template.home.events({
             $('.navbar-fixed-top').css('left', '0px');
             if(e.currentTarget.getAttribute('data-toogle') == 'mobile-menu'){
                 $('.navbar-fixed-top').css('margin-left', '0px');
+                $('#account-bar').show();
             }else {
                 $('#content').removeClass('showMenu');
             }
@@ -13,6 +14,7 @@ Template.home.events({
             $('.navbar-fixed-top').css('left', '250px');
             if(e.currentTarget.getAttribute('data-toogle') == 'mobile-menu'){
                 $('.navbar-fixed-top').css('margin-left', '250px');
+                $('#account-bar').hide();
             }else {
                 $('#content').addClass('showMenu');
             }
