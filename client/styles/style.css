@@ -33,6 +33,20 @@
     border-radius: 4px;
 }
 
+.cordobaLoginBar {
+    margin-top: 0% !important;
+    padding-left: 0px !important;
+}
+
+
+.cordobaPanelDefault {
+    width: 260px !important;
+}
+
+.cordobaLoginPanel {
+    padding: 5px !important;
+}
+
 @media (max-width: 768px) {
     .loginBar .container-fluid {
         margin-left: 20%;
