@@ -1,7 +1,7 @@
 var socket;                     // clients socket.io end
 var rec = null;                 // main recording device
-var recStat = new Recording;
-//
+var recStat = new Recording;    // holds recording state
+
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -11,11 +11,6 @@ Session.setDefault('expirationDate', null);
 Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
-// for recording
-var audioContext = new window.AudioContext();   // get audioContext
-var inputPoint = null;                          // for recording
-var mediaStreamSource = null;                   // for recording
-
 Template.chat.events({
     'click #start': function(e) {
         /**
@@ -24,8 +19,9 @@ Template.chat.events({
         **/
         navigator.getUserMedia({audio: true},
             function(mediaStream) {
-                inputPoint = audioContext.createGain();
-                mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+                var audioContext = new window.AudioContext();
+                var inputPoint = audioContext.createGain();
+                var mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
                 mediaStreamSource.connect(inputPoint);
                 // analyser
                 analyserNode = audioContext.createAnalyser();
