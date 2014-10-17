@@ -23,6 +23,16 @@
                     </span>
                 {{/if}}
 
+                {{#if recording }}
+                    <span id='stop'>
+                        <i class="fa fa-stop"></i> Stop Recording
+                    </span>
+                {{else}}
+                    <span id='start'>
+                        <i class="fa fa-play-circle"></i> Start Recording
+                    </span>
+                {{/if}}
+
                 <span class="next_chat pointer_btn" id='next'>
                     <i class="fa fa-chevron-circle-right"></i> Next
                 </span>
@@ -50,16 +60,20 @@
             <div class="media-body">
                 <div class="panel panel-default share">
                     <form id="form360">
-                        <div class="input-group">
-                            <div class="input-group-btn">
-                                <a class="btn btn-primary" href="#" id="messageSend">
-                                    <i class="fa fa-comment"></i>
-                                    Send
-                                </a>
+                        <canvas id='analyser' style='display: {{ canvasDisplay }}'></canvas>
+                        {{#if recording }}
+                        {{else}}
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <a class="btn btn-primary" href="#" id="messageSend">
+                                        <i class="fa fa-comment"></i>
+                                        Send
+                                    </a>
+                                </div>
+                                <input type="text" autocomplete='off' id='input360' class="form-control share-text"
+                                       placeholder="Type your message here..."/>
                             </div>
-                            <input type="text" autocomplete='off' id='input360' class="form-control share-text"
-                                   placeholder="Type your message here..."/>
-                        </div>
+                        {{/if}}
                     </form>
                 </div>
 

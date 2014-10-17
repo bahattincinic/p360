@@ -1,3 +1,5 @@
+var rec = null;                 // main recording device
+var recStat = new Recording;
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -8,6 +10,62 @@ Session.setDefault('avatarId', null);
 Session.setDefault('countdown', Settings.countdown);
 
 Template.chat.events({
+    // recording events
+    'click #start': function(e) {
+        /**
+            Set for audio recording
+            requesting permission from the user
+        **/
+        navigator.getUserMedia({audio: true},
+            function(mediaStream) {
+                var audioContext = new window.AudioContext();
+                var inputPoint = audioContext.createGain();
+                var mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
+                mediaStreamSource.connect(inputPoint);
+                // analyser
+                analyserNode = audioContext.createAnalyser();
+                analyserNode.fftsize = 2048;
+                inputPoint.connect(analyserNode);
+                // create recorder
+                rec = new Recorder(mediaStreamSource, {}, recStat);
+                rec.clear();
+                rec.record();
+        }, function(error) {
+            console.log(JSON.stringify(error));
+        });
+    },
+    'click #stop': function(e) {
+        /**
+            Stop recording and create a CollectionFS file
+            from blob, then proceed to insert this file
+            to approporiate collection
+        **/
+        rec.stop();
+        rec.exportWAV(function(blob) {
+            console.dir(blob);
+            var fsFile = new FS.File(blob);
+            fsFile.owner = Meteor.userId();
+            var roomId = Session.get('roomId') || '__no_room__';
+            fsFile.name('recording--' + roomId + '.wav');
+
+            var audio = Audios.insert(fsFile, function (err) {
+                if (err) {
+                    alertify.error("Wave could not be recorded");
+                    throw new Meteor.Error(err);
+                } else {
+                    alertify.success("Wave sent..");
+                    console.log(audio);
+
+                    Meteor.socket.emit('message', {
+                        body: null,
+                        type: 'audio',
+                        payloadId: audio._id
+                    });
+                }
+            });
+        });
+    },
+    // usual ui events
     'keydown #input360': _.throttle(function(e, t) {
     Meteor.socket.emit('typing', true);
     }, 750, {trailing: false}),
@@ -44,6 +102,19 @@ Template.chat.events({
     Meteor.socket.emit('sound', newSound);
     }
 });
+
+Template.chat.canvasDisplay = function() {
+    if (recStat.getRecording()) {
+        return 'inline';
+    } else {
+        return 'none';
+    }
+};
+
+Template.chat.recording = function() {
+    // return Session.get('recording');
+    return recStat.getRecording();
+};
 
 Template.chat.messages = function() {
     return Messages.find({"roomId": Session.get('roomId')},
@@ -96,6 +167,16 @@ Tracker.autorun(function() {
         });
     } else {
         Session.set('countdown', Settings.countdown);
+    }
+});
+
+// recording autorun
+Tracker.autorun(function() {
+    if (recStat.getRecording()) {
+        // wait for analyser element to be available on dom
+        Meteor.setTimeout(updateAnalysers, 250);
+    } else {
+        cancelAnalyserUpdates();
     }
 });
 

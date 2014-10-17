@@ -131,13 +131,25 @@ Meteor.startup(function() {
                 var from = Meteor.users.findOne({'_id': session.userId}).username;
                 var to = Meteor.users.findOne({'_id': toSession.userId}).username;
 
-                Messages.insert({
+                var messageId = Messages.insert({
                     'body': body,
                     'createdAt': Date.now(),
                     'from': from,
                     'to': to,
-                    'roomId': room._id
+                    'roomId': room._id,
+                    'type': body.type
                 });
+
+                // check for extra payload here
+                if (body.type === 'audio' && body.payloadId) {
+                    Messages.update({
+                        '_id': messageId
+                    }, {$set: {
+                            'payloadId': body.payloadId,
+                            'type': body.type
+                        }
+                    });
+                }
             }).run();
         });
 
@@ -233,7 +245,9 @@ Meteor.publish('messages', function(roomId) {
     return Messages.find({'roomId': roomId});
 });
 
-
+Meteor.publish('audios', function() {
+    return Audios.find({});
+});
 
 Meteor.publish('users', function(roomId) {
     if (!this.userId) return [];

@@ -31,4 +31,9 @@
 
 <template name="messageBody">
     {{ body }}
+    {{#if isAudio }}
+        {{#with audioMessage payloadId }}
+            <audio src="{{url store='audios'}}" controls></audio>
+        {{/with}}
+    {{/if}}
 </template>
