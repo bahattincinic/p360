@@ -1,5 +1,5 @@
 var rec = null;                 // main recording device
-var recStat = new Recording;
+Meteor.recStat = new Recording;
 // session defaults
 Session.setDefault('talking', false);
 Session.setDefault('searching', false);
@@ -27,7 +27,7 @@ Template.chat.events({
                 analyserNode.fftsize = 2048;
                 inputPoint.connect(analyserNode);
                 // create recorder
-                rec = new Recorder(mediaStreamSource, {}, recStat);
+                rec = new Recorder(mediaStreamSource, {}, Meteor.recStat);
                 rec.clear();
                 rec.record();
         }, function(error) {
@@ -67,10 +67,10 @@ Template.chat.events({
     },
     // usual ui events
     'keydown #input360': _.throttle(function(e, t) {
-    Meteor.socket.emit('typing', true);
+        Meteor.socket.emit('typing', true);
     }, 750, {trailing: false}),
     'keyup #input360' : _.debounce(function(e, t) {
-    Meteor.socket.emit('typing', false);
+        Meteor.socket.emit('typing', false);
     }, 1500, false),
     'submit #form360, click #messageSend': function(e, form) {
         e.preventDefault();
@@ -99,52 +99,10 @@ Template.chat.events({
     },
     'click #changeSound': function(){
         var newSound = !Session.get('sound');
-    Meteor.socket.emit('sound', newSound);
+        Meteor.socket.emit('sound', newSound);
     }
 });
 
-Template.chat.canvasDisplay = function() {
-    if (recStat.getRecording()) {
-        return 'inline';
-    } else {
-        return 'none';
-    }
-};
-
-Template.chat.recording = function() {
-    // return Session.get('recording');
-    return recStat.getRecording();
-};
-
-Template.chat.messages = function() {
-    return Messages.find({"roomId": Session.get('roomId')},
-        { sort: {createdAt: -1}});
-};
-
-Template.message.hasOwner = function(from){
-    return Meteor.user().username == from;
-};
-
-Template.chat.timeLeft = function() {
-    return Session.get('countdown');
-};
-
-Template.chat.getOtherUserAvatar = function(){
-    var ImageId = Session.get('avatarId');
-    return Images.findOne({'_id': ImageId});
-}
-
-Template.chat.getOtherUser = function(){
-    var guy = Meteor.users.find({'_id': {$ne: Meteor.userId()}}).fetch();
-    if(guy.length > 0){
-        return guy[0];
-    }
-    return 'anonim';
-}
-
-Handlebars.registerHelper('session',function(input){
-    return Session.get(input);
-});
 
 // room autorun
 Tracker.autorun(function() {
@@ -172,7 +130,7 @@ Tracker.autorun(function() {
 
 // recording autorun
 Tracker.autorun(function() {
-    if (recStat.getRecording()) {
+    if (Meteor.recStat.getRecording()) {
         // wait for analyser element to be available on dom
         Meteor.setTimeout(updateAnalysers, 250);
     } else {
@@ -197,6 +155,7 @@ Meteor.startup(function() {
     var connTarget = origin + ':' + Settings.ioPort;
     Meteor.socket = io.connect(connTarget);
     Meteor.subscribe('images');
+    Meteor.subscribe('audios');
 
     // configure emojify
     emojify.setConfig({

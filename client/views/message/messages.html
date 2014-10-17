@@ -9,9 +9,9 @@
                     {{/if}}
                 {{else}}
                     {{#if session "avatarId" }}
-                        <img src="url({{getOtherUserAvatar.url store='images'}})" width="60" alt="">
+                        <img src="{{getOtherUserAvatar.url store='images'}}" width="60" height="60" alt="">
                     {{ else }}
-                        <img src="images/default.jpg" width="60" alt="">
+                        <img src="images/default.jpg" width="60" height="60" alt="">
                     {{/if}}
                 {{/if}}
             </div>
@@ -30,10 +30,11 @@
 
 
 <template name="messageBody">
-    {{ body }}
     {{#if isAudio }}
         {{#with audioMessage payloadId }}
             <audio src="{{url store='audios'}}" controls></audio>
         {{/with}}
+    {{ else }}
+        {{ body }}
     {{/if}}
 </template>

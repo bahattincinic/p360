@@ -49,7 +49,7 @@
             </div>
             <a href="#" class="btn btn-brand-primary pull-right">
                 <span class="second">
-                    {{#if timeLeft }}{{ timeLeft }}{{ else }}   ∭  {{/if}}
+                    {{#if session "countdown" }}{{ session "countdown" }}{{ else }}   ∭  {{/if}}
                 </span>
                 <strong id="string_seconds">seconds</strong>
             </a>
@@ -60,7 +60,9 @@
             <div class="media-body">
                 <div class="panel panel-default share">
                     <form id="form360">
-                        <canvas id='analyser' style='display: {{ canvasDisplay }}'></canvas>
+
+                        <canvas id='analyser' style='display: {{ canvasDisplay }}; height:60px; width: 142%'></canvas>
+
                         {{#if recording }}
                         {{else}}
                             <div class="input-group">

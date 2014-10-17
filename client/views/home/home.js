@@ -76,11 +76,6 @@ Template.home.events({
     }
 });
 
-Template.home.getUserAvatar = function(){
-    var user = Meteor.users.findOne({'_id': Meteor.userId()});
-    return Images.findOne({'_id': user.avatarId});
-}
-
 Meteor.startup(function(){
     $('body').addClass('login');
 });
