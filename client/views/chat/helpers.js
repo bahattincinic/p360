@@ -19,6 +19,10 @@ Handlebars.registerHelper('session',function(input){
     return Session.get(input);
 });
 
+Handlebars.registerHelper('settings',function(input){
+    return Settings[input];
+});
+
 Handlebars.registerHelper('getOtherUserAvatar', function(){
     var ImageId = Session.get('avatarId');
     return Images.findOne({'_id': ImageId});

@@ -1,3 +1,6 @@
-Handlebars.registerHelper('isCordova',function(){
+Handlebars.registerHelper('isCordova', function(equal){
+    if(equal == 'not'){
+        return !Meteor.isCordova;
+    }
     return Meteor.isCordova;
 });

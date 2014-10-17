@@ -68,6 +68,19 @@
         text-align: center;
         margin-left: 30px;
     }
+
+    .cordoba_menu {
+        position: absolute !important;
+        background-color: #fff !important;
+    }
+
+    .cordoba_cover {
+        height: 82px !important;
+    }
+
+    .cordoba_avatar {
+        top:44px !important;
+    }
 }
 
 /*

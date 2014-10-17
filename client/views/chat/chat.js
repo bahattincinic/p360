@@ -151,7 +151,7 @@ Tracker.autorun(function() {
 });
 
 Meteor.startup(function() {
-    var origin = window.location.host.split(":")[0];
+    var origin = Settings.ioPath;
     var connTarget = origin + ':' + Settings.ioPort;
     Meteor.socket = io.connect(connTarget);
     Meteor.subscribe('images');

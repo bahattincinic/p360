@@ -4,15 +4,15 @@
 
     {{#if session "talking"}}
         <div class="panel panel-default profile">
-            <div class="cover-container"></div>
+            <div class="cover-container cordoba_cover"></div>
             <div class="info">
                 <h4>{{ getOtherUser.username }}</h4>
             </div>
 
             {{#if session "avatarId" }}
-                <img src="{{getOtherUserAvatar.url store='images'}}" width="116" height="116" alt="" class="img-circle avatar">
+                <img src="{{settings 'mediaDomain'}}{{getOtherUserAvatar.url store='images'}}" width="116" height="116" alt="" class="img-circle avatar cordoba_avatar">
             {{ else }}
-                <img src="images/default.jpg" alt="" width="116" height="116" class="img-circle avatar">
+                <img src="images/default.jpg" alt="" width="116" height="116" class="img-circle avatar cordoba_avatar">
             {{/if}}
 
             <div class="profile-icons">
@@ -23,14 +23,16 @@
                     </span>
                 {{/if}}
 
-                {{#if recording }}
+                {{#if isCordova 'not' }}
+                    {{#if recording }}
                     <span id='stop'>
                         <i class="fa fa-stop"></i> Stop Recording
                     </span>
-                {{else}}
-                    <span id='start'>
-                        <i class="fa fa-play-circle"></i> Start Recording
-                    </span>
+                    {{else}}
+                        <span id='start'>
+                            <i class="fa fa-play-circle"></i> Start Recording
+                        </span>
+                    {{/if}}
                 {{/if}}
 
                 <span class="next_chat pointer_btn" id='next'>
@@ -39,11 +41,11 @@
 
                 {{#if session "sound" }}
                     <span id='changeSound' class="pointer_btn change_sound">
-                        <i class="fa fa-bell-o"></i> Sound Active
+                        <i class="fa fa-bell-o"></i> Active
                     </span>
                 {{ else }}
                     <span id='changeSound' class="pointer_btn change_sound">
-                        <i class="fa fa-bell-slash-o"></i> Sound Passive
+                        <i class="fa fa-bell-slash-o"></i> Passive
                     </span>
                 {{/if}}
             </div>

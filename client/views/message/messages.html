@@ -3,13 +3,13 @@
             <div class="pull-{{#if hasOwner from}}right{{else}}left{{/if}} media-object">
                 {{#if hasOwner from}}
                     {{#if getUserAvatar }}
-                        <img src="{{getUserAvatar.url store='images'}}" width="60" alt=""/>
+                        <img src="{{settings 'mediaDomain'}}{{getUserAvatar.url store='images'}}" width="60" alt=""/>
                     {{ else }}
                         <img src="images/default.jpg" width="60" alt=""/>
                     {{/if}}
                 {{else}}
                     {{#if session "avatarId" }}
-                        <img src="{{getOtherUserAvatar.url store='images'}}" width="60" height="60" alt="">
+                        <img src="{{settings 'mediaDomain'}}{{getOtherUserAvatar.url store='images'}}" width="60" height="60" alt="">
                     {{ else }}
                         <img src="images/default.jpg" width="60" height="60" alt="">
                     {{/if}}
