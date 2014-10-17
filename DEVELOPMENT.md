@@ -1,3 +1,14 @@
+# Development #
+
+### Create a server debugging file ###
+
+```bash
+touch server/debug.js
+```
+
+### Please copy the commands into debug.js ###
+
+```javascript
 Meteor.startup(function() {
     Sessions.remove({});
     Messages.remove({});
@@ -55,3 +66,4 @@ Meteor.startup(function() {
         }
     });
 });
+```
