@@ -2,6 +2,8 @@
 
 Random matching chat example for meteor
 
+**Not being maintained**
+
 ### What needs to be done still? ###
 
 * Testing!! We do not know how reliable our code and setup is, so we need a lot of testing at this point
