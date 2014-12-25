@@ -1,6 +1,6 @@
 # Project 360 #
 
-A brief todo list for project 360.
+Random matching chat example for meteor
 
 ### What needs to be done still? ###
 
